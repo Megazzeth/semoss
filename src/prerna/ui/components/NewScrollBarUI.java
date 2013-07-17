@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -18,7 +19,10 @@ public class NewScrollBarUI extends BasicScrollBarUI {
 
 	public NewScrollBarUI() {
 		try {
-			thumb = ImageIO.read(getClass().getResource("rect.jpg"));
+			String workingDir = System.getProperty("user.dir");
+			String picFileURL = workingDir+"/pictures/rect.png";
+			File picFile = new File(picFileURL);
+			thumb = ImageIO.read(picFile);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

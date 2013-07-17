@@ -2,7 +2,6 @@ package prerna.ui.main.listener.impl;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
-import java.util.Hashtable;
 import java.util.Iterator;
 
 import javax.swing.JComponent;
@@ -20,14 +19,6 @@ import prerna.ui.components.GraphPlaySheet;
 import prerna.ui.components.VertexPropertyTableModel;
 import prerna.ui.components.api.IChakraListener;
 import prerna.ui.components.api.IPlaySheet;
-import prerna.ui.transformer.ArrowDrawPaintTransformer;
-import prerna.ui.transformer.EdgeArrowStrokeTransformer;
-import prerna.ui.transformer.EdgeStrokeTransformer;
-import prerna.ui.transformer.SearchEdgeStrokeTransformer;
-import prerna.ui.transformer.SearchVertexLabelFontTransformer;
-import prerna.ui.transformer.SearchVertexPaintTransformer;
-import prerna.ui.transformer.VertexLabelFontTransformer;
-import prerna.ui.transformer.VertexPaintTransformer;
 import prerna.util.Constants;
 import prerna.util.DIHelper;
 import prerna.util.QuestionPlaySheetStore;
@@ -142,8 +133,7 @@ public class GraphNodeListener extends ModalLensGraphMouse implements IChakraLis
 			}catch (Exception ex){
 				//ignored
 			}
-			gps.resetTransformers();
-				
+			boolean resetTransformers = true;
 		}
 		// handle the vertices
 

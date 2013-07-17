@@ -107,7 +107,7 @@ public class QuestionListener implements IChakraListener {
 			panel.setParams(paramHash3);
 			panel.setParamType(paramHash2);
 			panel.paintParam();
-	
+			
 			// finally add the param to the core panel
 			// confused about how to add this need to revisit
 			JPanel mainPanel = (JPanel)DIHelper.getInstance().getLocalProp(Constants.PARAM_PANEL_FIELD);

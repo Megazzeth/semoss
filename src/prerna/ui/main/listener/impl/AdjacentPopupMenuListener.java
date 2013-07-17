@@ -19,6 +19,8 @@ import prerna.ui.transformer.SearchVertexPaintTransformer;
 import prerna.ui.transformer.VertexLabelFontTransformer;
 import prerna.ui.transformer.VertexPaintTransformer;
 import prerna.util.Constants;
+import edu.uci.ics.jung.visualization.picking.MultiPickedState;
+import edu.uci.ics.jung.visualization.picking.PickedState;
 
 public class AdjacentPopupMenuListener implements ActionListener {
 
@@ -49,7 +51,8 @@ public class AdjacentPopupMenuListener implements ActionListener {
 		logger.debug("Getting the base graph");
 		Hashtable <String, DBCMEdge> edgeHash = new Hashtable<String, DBCMEdge>();
 		Hashtable <String, String> vertHash = new Hashtable<String, String>();
-
+		PickedState state = new MultiPickedState();
+		
 		for(int vertIndex = 0;vertIndex < vertices.length;vertIndex++)
 		{
 			DBCMVertex vert = vertices[vertIndex];
@@ -59,13 +62,18 @@ public class AdjacentPopupMenuListener implements ActionListener {
 			edgeHash = putEdgesInHash(vert.getOutEdges(), edgeHash);
 			vertHash.put(vert.getURI(), vert.getURI());
 			for (DBCMEdge edge : vert.getInEdges()){
-				if (allEdgesVect.contains(edge))
+				if (allEdgesVect.contains(edge)){
 					vertHash.put(edge.inVertex.getURI(), edge.inVertex.getURI());
+					state.pick(edge.inVertex, true);
+				}
 			}
 			for (DBCMEdge edge : vert.getOutEdges()){
-				if (allEdgesVect.contains(edge))
+				if (allEdgesVect.contains(edge)){
 					vertHash.put(edge.outVertex.getURI(), edge.outVertex.getURI());
+					state.pick(edge.outVertex, true);
+				}
 			}
+			ps2.getView().setPickedVertexState(state);
 		}
 	
 		if(ps2.searchPanel.btnHighlight.isSelected()){

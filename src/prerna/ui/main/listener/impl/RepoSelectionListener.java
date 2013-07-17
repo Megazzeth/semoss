@@ -1,9 +1,11 @@
 package prerna.ui.main.listener.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JList;
 import javax.swing.event.ListSelectionEvent;
@@ -12,6 +14,7 @@ import javax.swing.event.ListSelectionListener;
 import org.apache.log4j.Logger;
 
 import prerna.rdf.engine.api.IEngine;
+import prerna.ui.helpers.EntityFillerForSubClass;
 import prerna.util.Constants;
 import prerna.util.DIHelper;
 import prerna.util.Utility;
@@ -44,6 +47,7 @@ public class RepoSelectionListener implements ListSelectionListener {
 		{
 			logger.info("Engine selected " + list.getSelectedValue()); //e.getFirstIndex();
 			// now get the prop file
+			// need to change this to local prop
 			String qPropName = (String)DIHelper.getInstance().getCoreProp().get(list.getSelectedValue() + "_" + Constants.DREAMER);
 			String ontologyPropName = (String)DIHelper.getInstance().getCoreProp().get(list.getSelectedValue() + "_" + Constants.ONTOLOGY);
 			
@@ -64,10 +68,40 @@ public class RepoSelectionListener implements ListSelectionListener {
 			box.removeAllItems();
 			for(int itemIndex = 0;itemIndex < perspectives.size();((JComboBox)DIHelper.getInstance().getLocalProp(Constants.PERSPECTIVE_SELECTOR)).addItem(perspectives.get(itemIndex)), itemIndex++);
 
-			//fill transition report combo box
+			//Clear then populate Node Type drop-down in Export Load Sheet Panel
+			try {
+				LoadSheetExportClearAllListener clear = new LoadSheetExportClearAllListener();
+				clear.actionPerformed(null);
+				populateLoadSheetExportComboBoxes(list);
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			}
 		}
 
 
+	}
+	
+	public void populateLoadSheetExportComboBoxes(JList list) {
+		ArrayList<JComboBox> boxes = new ArrayList<JComboBox>();
+		for(int i = 1; i <= Constants.MAX_EXPORTS; i++) {
+			JComboBox subjectNodeTypeComboBox = (JComboBox) DIHelper.getInstance().getLocalProp(Constants.EXPORT_LOAD_SHEET_SUBJECT_NODE_TYPE_COMBOBOX + i);
+			boxes.add(subjectNodeTypeComboBox);
+		}
+		IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(list.getSelectedValue()+"");
+		EntityFillerForSubClass entityFillerSC = new EntityFillerForSubClass();
+		entityFillerSC.boxes = boxes;
+		entityFillerSC.engine = engine;
+		entityFillerSC.parent = "Concept";
+		Thread aThread = new Thread(entityFillerSC);
+		aThread.run();
+		
+		DefaultComboBoxModel model = new DefaultComboBoxModel(new String[0]);
+		JComboBox objectNodeTypeComboBox = (JComboBox) DIHelper.getInstance().getLocalProp(Constants.EXPORT_LOAD_SHEET_OBJECT_NODE_TYPE_COMBOBOX + "1");
+		objectNodeTypeComboBox.setModel(model);
+		objectNodeTypeComboBox.setEditable(false);
+		JComboBox nodeRelationshipComboBox = (JComboBox) DIHelper.getInstance().getLocalProp(Constants.EXPORT_LOAD_SHEET_NODE_RELATIONSHIP_COMBOBOX + "1");
+		nodeRelationshipComboBox.setModel(model);
+		nodeRelationshipComboBox.setEditable(false);
 	}
 
 }

@@ -285,8 +285,8 @@ public class VertexFilterData {
 					String edgeName = (String)edge.getProperty(Constants.EDGE_NAME);
 
 					Double value = 0.0;
-					if(edge.getProperty(Constants.WEIGHT) != null)
-						value = (Double)edge.getProperty(Constants.WEIGHT);
+					//if(edge.getProperty(Constants.WEIGHT) != null)
+						//value = (Double)edge.getProperty(Constants.WEIGHT);
 
 					logger.debug("Adding edge with details of " + edgeType + "<>" + edgeName + "<>" + value);
 					edgeRows[rowCount][0] = new Boolean(true);

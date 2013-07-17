@@ -30,35 +30,35 @@ public class OPropertyTableModel extends AbstractTableModel {
 	{
 		this.data = data;
 	}
-	
-	
 
 	public String getColumnName(int index)
 	{
-		return this.data.columnNames[index];
+		return this.data.columnNames2[index];
 	}
 
 	@Override
 	public int getRowCount() {
-		return data.getNumRows();
+		//return data.getPredicateRows();
+		return 0;
 	}
 
 	@Override
 	public Object getValueAt(int arg0, int arg1) {
 		// get the value first
-		return data.getValueAt2(arg0, arg1);
+		//return data.getValueAt2(arg0, arg1);
+		return null;
 	}
 	
 	public Class getColumnClass(int column)
 	{
 		//logger.debug("Getting clolumn " + column);
-		Object val = data.dataList[0][column];
+		Object val = data.dataList2[0][column];
 		return val.getClass();
 	}
 
 	public boolean isCellEditable(int row, int column)
 	{
-		if(column == 0)
+		if(column == 1 || column == 2)
 			return true;
 		else
 			return false;
@@ -67,7 +67,7 @@ public class OPropertyTableModel extends AbstractTableModel {
 	public void setValueAt(Object value, int row, int column)
 	{
 		logger.debug("Calling the edge filter set value at");
-		data.setValueAt2(uriVal, value, row, column);
+		//data.setValueAt2(uriVal, value, row, column);
 		fireTableDataChanged();
 		
 		// need to figure out a better way to do this

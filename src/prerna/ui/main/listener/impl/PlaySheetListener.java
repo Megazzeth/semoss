@@ -1,8 +1,5 @@
 package prerna.ui.main.listener.impl;
 
-import java.beans.PropertyVetoException;
-
-import javax.swing.JComboBox;
 import javax.swing.JInternalFrame;
 import javax.swing.JTable;
 import javax.swing.JToggleButton;
@@ -17,6 +14,7 @@ import prerna.ui.components.EdgeFilterTableModel;
 import prerna.ui.components.GraphPlaySheet;
 import prerna.ui.components.VertexFilterData;
 import prerna.ui.components.VertexFilterTableModel;
+import prerna.util.CSSApplication;
 import prerna.util.Constants;
 import prerna.util.DIHelper;
 import prerna.util.QuestionPlaySheetStore;
@@ -88,13 +86,10 @@ public class PlaySheetListener implements InternalFrameListener {
 		// this should also enable the extend and overlay buttons
 		JToggleButton append = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.APPEND);
 		append.setEnabled(true);
-
-		JToggleButton extend = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.EXTEND);
-		extend.setEnabled(true);
+		CSSApplication css = new CSSApplication(append,".toggleButton");
+		//append.repaint();
 		logger.info("Internal Frame Activated >>>> Complete ");
 		
-
-
 	}
 
 	@Override
@@ -123,9 +118,6 @@ public class PlaySheetListener implements InternalFrameListener {
 		
 		// also clear out the extend box as well
 		// fill the nodetype list so that they can choose from
-		//DefaultComboBoxModel cbModel = new DefaultComboBoxModel();
-		// box = new JComboBox((String [])DIHelper.getInstance().getLocalProp(type));
-		//box.setModel(cbModel);
 		logger.debug("Cleaned up the node list ");
 
 		// remove from store
@@ -134,17 +126,20 @@ public class PlaySheetListener implements InternalFrameListener {
 
 		// disable the overlay and extend
 		// this should also enable the extend and overlay buttons
-		/*
+		
 		JToggleButton append = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.APPEND);
-		append.setEnabled(false);
-		append.setSelected(false);
-
+		//append.setEnabled(false);
+		
+		/*
 		JToggleButton extend = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.EXTEND);
 		extend.setEnabled(false);
 		extend.setSelected(false);
 		*/
 		//if the playsheet has a data latency popup associated with it, close it
-		
+		if(ps.dataLatencyPopUp!=null && !ps.dataLatencyPopUp.isClosed()){
+			ps.dataLatencyPopUp.dispose();
+		}
+		//if the playsheet has a data latency play popup associated with it, close it
 		logger.debug("Disabled the extend and append ");
 		logger.info("Complete ");
 	}
@@ -180,9 +175,6 @@ public class PlaySheetListener implements InternalFrameListener {
 		// this should also enable the extend and overlay buttons
 		JToggleButton append = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.APPEND);
 		append.setEnabled(true);
-
-		JToggleButton extend = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.EXTEND);
-		extend.setEnabled(true);
 
 	}
 

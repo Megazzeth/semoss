@@ -50,12 +50,13 @@ public class PlaySheetOWLListener implements InternalFrameListener {
 	
 		logger.info("Lable count is " + model.getRowCount());
 		// get the table
-		JTable table = (JTable)DIHelper.getInstance().getLocalProp(Constants.OBJECT_PROP_TABLE);
+		/*JTable table = (JTable)DIHelper.getInstance().getLocalProp(Constants.OBJECT_PROP_TABLE);
 		table.setModel(model);
 		//table.repaint();
 		model.fireTableDataChanged();
 		logger.debug("Added the Node filter table ");
-
+		*/
+		
 		PropertyTableModel model2 = new PropertyTableModel(psd);
 
 		// get the table

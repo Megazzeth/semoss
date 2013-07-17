@@ -100,6 +100,8 @@ public class GraphNodePopup extends JPopupMenu {
 		item = add("Export Graph2");
 		item.addActionListener(exp2);
 		*/
+		addSeparator();
+		
 		//JCheckBoxMenuItem relTypes = new JCheckBoxMenuItem("Relation Types");
 		/*RelationPopup popup = new RelationPopup(ps,this.pickedVertex);
 		item = add(popup);
@@ -137,7 +139,6 @@ public class GraphNodePopup extends JPopupMenu {
 		item = add(popup13);
 		item.setEnabled(pickedVertex.length > 0);
 		
-		
 		JMenu algoPop = new JMenu("Perform Algorithms");
 		item = add(algoPop);
 		item.setEnabled(true);
@@ -162,7 +163,6 @@ public class GraphNodePopup extends JPopupMenu {
 		algoItemIslandIdentifier.addActionListener(iil);
 		algoPop.add(algoItemIslandIdentifier);
 
-		
 		addSeparator();
 		ColorPopup popup7 = new ColorPopup("Modify Color ", ps, pickedVertex);
 		item = add(popup7);
@@ -184,7 +184,13 @@ public class GraphNodePopup extends JPopupMenu {
 		UnHideVertexPopupMenuListener uhvl = new UnHideVertexPopupMenuListener();
 		uhvl.setPlaysheet(ps);
 		item.addActionListener(uhvl);
-      
+
+		addSeparator();
+		JMenu chartPop = new JMenu("Chart It!!");
+		item = add(chartPop);
+        item.setEnabled(true);
+        
+		
 		//item.setEnabled(pickedVertex.length > 0);
 
 		

@@ -7,16 +7,13 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import javax.swing.JInternalFrame;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 
 import org.apache.log4j.Logger;
 
 import prerna.om.DBCMVertex;
 import prerna.ui.components.GraphPlaySheet;
 import prerna.ui.components.GridFilterData;
-import prerna.ui.components.GridTableModel;
-import prerna.ui.components.NewScrollBarUI;
+import prerna.ui.components.GridScrollPane;
 import prerna.util.QuestionPlaySheetStore;
 import edu.uci.ics.jung.algorithms.scoring.PageRank;
 
@@ -80,15 +77,8 @@ public class GraphNodeRankListener implements ActionListener {
 		//need to sort the list so highest page rank shows on top
 
 		//set list
-		gfd.setDataList(list);
-		JTable table = new JTable();
-		table.setAutoCreateRowSorter(true);
-		GridTableModel model = new GridTableModel(gfd);
-		table.setModel(model);
-		JScrollPane scrollPane = new JScrollPane(table);
-		scrollPane.setAutoscrolls(true);
-		scrollPane.getVerticalScrollBar().setUI(new NewScrollBarUI());
-		nodeRankSheet.setContentPane(scrollPane);
+		GridScrollPane dataPane = new GridScrollPane(colNames, list);
+		nodeRankSheet.setContentPane(dataPane);
 		
 		//set tab on graphplaysheet
 		playSheet.jTab.add("NodeRank Scores", nodeRankSheet);

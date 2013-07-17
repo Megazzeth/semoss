@@ -45,9 +45,6 @@ public class GridPlaySheetListener implements InternalFrameListener {
 		// this should also enable the extend and overlay buttons
 		JToggleButton append = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.APPEND);
 		append.setEnabled(true);
-
-		JToggleButton extend = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.EXTEND);
-		extend.setEnabled(true);
 		logger.info("Internal Frame Activated >>>> Complete ");
 	}
 
@@ -74,9 +71,6 @@ public class GridPlaySheetListener implements InternalFrameListener {
 		append.setEnabled(false);
 		append.setSelected(false);
 
-		JToggleButton extend = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.EXTEND);
-		extend.setEnabled(false);
-		extend.setSelected(false);
 		*/
 		logger.debug("Disabled the extend and append ");
 		logger.info("Complete ");
@@ -114,8 +108,6 @@ public class GridPlaySheetListener implements InternalFrameListener {
 		JToggleButton append = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.APPEND);
 		append.setEnabled(true);
 
-		JToggleButton extend = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.EXTEND);
-		extend.setEnabled(true);
 
 	}
 

@@ -33,7 +33,8 @@ public class UndoListener extends SparqlAreaListener {
 	@Override
 	public void actionPerformed(ActionEvent actionevent) {
 			// TODO Auto-generated method stub
-
+		if (QuestionPlaySheetStore.getInstance().getActiveSheet() != null)
+		{
 			/*JPanel panel = (JPanel)DIHelper.getInstance().getLocalProp(Constants.PARAM_PANEL_FIELD);
 			int level = (Integer)DIHelper.getInstance().getLocalProp(Constants.TRAVERSE_LEVEL);
 			level--;
@@ -43,6 +44,7 @@ public class UndoListener extends SparqlAreaListener {
 			IPlaySheet playSheet = null;
 			playSheet = (IPlaySheet) QuestionPlaySheetStore.getInstance().getActiveSheet();
 			playSheet.undoView();
+		}
 			//Thread playThread = new Thread(playSheet);
 			//DIHelper.getInstance().setLocalProperty(Constants.UNDO_BOOLEAN, true);
 			//playThread.run();

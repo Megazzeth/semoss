@@ -31,8 +31,6 @@ public class PropertyTableModel extends AbstractTableModel {
 	{
 		this.data = data;
 	}
-	
-	
 
 	public String getColumnName(int index)
 	{
@@ -59,7 +57,7 @@ public class PropertyTableModel extends AbstractTableModel {
 
 	public boolean isCellEditable(int row, int column)
 	{
-		if(column == 0)
+		if(column >= 2)
 			return true;
 		else
 			return false;
@@ -68,7 +66,7 @@ public class PropertyTableModel extends AbstractTableModel {
 	public void setValueAt(Object value, int row, int column)
 	{
 		logger.debug("Calling the edge filter set value at");
-		data.setValueAt2(uriVal2, value, row, column);
+		//data.setValueAt2(uriVal2, value, row, column);
 		data.setValueAt(uriVal, value, row, column);
 				
 		fireTableDataChanged();

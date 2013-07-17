@@ -41,7 +41,7 @@ public class ImportTypeSelectionListener extends AbstractListener {
 		JButton advancedButton = (JButton)DIHelper.getInstance().getLocalProp(Constants.ADVANCED_IMPORT_OPTIONS_BUTTON);
 		JPanel advancedPanel = (JPanel)DIHelper.getInstance().getLocalProp(Constants.ADVANCED_IMPORT_OPTIONS_PANEL);
 		String selection = bx.getSelectedItem() + "";
-		if(selection.equals("Add to existing database engine"))
+		if(selection.equals("Add to existing database engine") || selection.equals("Modify/Replace data in existing engine"))
 		{
 			panel.setVisible(true);
 			lbl1.setVisible(false);

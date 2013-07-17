@@ -27,8 +27,8 @@ import prerna.util.QuestionPlaySheetStore;
 import prerna.util.Utility;
 
 public class RemoveQueryListener extends SparqlAreaListener {
-	
-	
+
+
 	/*
 	 * 1. Get information from the textarea for the query
 	 * 2. Process the query to Remove the graph
@@ -44,23 +44,24 @@ public class RemoveQueryListener extends SparqlAreaListener {
 	// right hand side panel
 	JComponent rightPanel = null;
 	Logger logger = Logger.getLogger(getClass());
-	
+
 	@Override
 	public void actionPerformed(ActionEvent actionevent) {
-			// TODO Auto-generated method stub
-			// get all the component
-			// get the current panel showing - need to do the isVisible
-			// currently assumes all queries are SPARQL, needs some filtering if there are other types of queries
-			// especially the ones that would use JGraph
-		
-		JToggleButton spql = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.SPARQLBTN);
-		//if (!extend.isSelected() && !spql.isSelected())
-		if (!spql.isSelected())
+		// TODO Auto-generated method stub
+		// get all the component
+		// get the current panel showing - need to do the isVisible
+		// currently assumes all queries are SPARQL, needs some filtering if there are other types of queries
+		// especially the ones that would use JGraph
+		if (QuestionPlaySheetStore.getInstance().getActiveSheet() != null)
 		{
-			clearQuery();
-		}
+			JToggleButton spql = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.SPARQLBTN);
+			//if (!extend.isSelected() && !spql.isSelected())
+			if (!spql.isSelected())
+			{
+				clearQuery();
+			}
 			// get the query
-			
+
 			// gets the panel component and parameters
 			JPanel panel = (JPanel)DIHelper.getInstance().getLocalProp(Constants.PARAM_PANEL_FIELD);
 			DIHelper.getInstance().setLocalProperty(Constants.UNDO_BOOLEAN, false);
@@ -70,7 +71,7 @@ public class RemoveQueryListener extends SparqlAreaListener {
 			for(int compIndex = 0;compIndex < comps.length && curPanel == null;compIndex++)
 				if(comps[compIndex].isVisible())
 					curPanel = (JComponent)comps[compIndex];
-			
+
 			// get all the param field
 			Component [] fields = curPanel.getComponents();
 			Hashtable paramHash = new Hashtable();
@@ -88,31 +89,31 @@ public class RemoveQueryListener extends SparqlAreaListener {
 			// now get the text area
 			logger.debug("Param Hash is set to " + paramHash);
 			this.sparql.setText(prerna.util.Utility.fillParam(this.sparql.getText(), paramHash));
-			
+
 			// Feed all of this information to the playsheet
 			// get the layout class based on the query
 			SparqlArea area = (SparqlArea)this.sparql;
 			Properties prop = DIHelper.getInstance().getCoreProp();
-			
+
 			// uses pattern QUERY_Layout
 			// need to get the key first here >>>>
 			JComboBox questionList = (JComboBox)DIHelper.getInstance().getLocalProp(Constants.QUESTION_LIST_FIELD);
 			String id = DIHelper.getInstance().getIDForQuestion(questionList.getSelectedItem() + "");
 			String keyToSearch = id + "_" + Constants.LAYOUT;
 			String layoutValue = prop.getProperty(keyToSearch);
-			
+
 			// now just do class.forName for this layout Value and set it inside playsheet
 			// need to template this out and there has to be a directive to identify 
 			// specifically what sheet we need to refer to
-			
+
 			JList list = (JList)DIHelper.getInstance().getLocalProp(Constants.REPO_LIST);
 			// get the selected repository
 			Object [] repos = (Object [])list.getSelectedValues();
-			
+
 			logger.info("Layout value set to [" + layoutValue +"]");
 			logger.info("Repository is " + repos);
 			Runnable playRunner = null;
-			
+
 			for(int repoIndex = 0;repoIndex < repos.length;repoIndex++)
 			{
 				IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(repos[repoIndex]+"");
@@ -120,7 +121,7 @@ public class RemoveQueryListener extends SparqlAreaListener {
 				// use the layout to load the sheet later
 				// see if the append is on
 				logger.debug("Toggle is selected");
-		
+
 				IPlaySheet playSheet = null;
 				logger.debug("Appending ");
 				playSheet = QuestionPlaySheetStore.getInstance().getActiveSheet();
@@ -131,8 +132,8 @@ public class RemoveQueryListener extends SparqlAreaListener {
 				Thread playThread = new Thread(playRunner);
 				playThread.start();
 			}
-			
 
+		}
 	}
 
 	public void clearQuery()
@@ -145,10 +146,10 @@ public class RemoveQueryListener extends SparqlAreaListener {
 		if(question != null)
 		{
 			String id = DIHelper.getInstance().getIDForQuestion(question);
-			
+
 			// now get the SPARQL query for this id
 			String sparql = DIHelper.getInstance().getProperty(id + "_" + Constants.QUERY);	
-			
+
 			// get all the parameters and names from the SPARQL
 			Hashtable paramHash = Utility.getParams(sparql);
 			// for each of the params pick out the type now
@@ -173,10 +174,10 @@ public class RemoveQueryListener extends SparqlAreaListener {
 			area.setText(sparql);
 		}
 	}
-	
+
 	public void setRightPanel(JComponent view) {
 		this.rightPanel = view;
 	}
 
-	
+
 }

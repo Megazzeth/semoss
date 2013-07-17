@@ -21,6 +21,7 @@ public class ColorShapeClearRefreshListener implements IChakraListener {
 		System.out.println("Calling action performed - refine view");	
 		GraphPlaySheet playSheet = (GraphPlaySheet)QuestionPlaySheetStore.getInstance().getActiveSheet();
 		TypeColorShapeTable.getInstance().clearAll();
+		playSheet.getVertexLabelFontTransformer().clearSizeData();
 		playSheet.repaint();
 		playSheet.genAllData();
 		playSheet.showAll();

@@ -39,9 +39,10 @@ public interface IAlgorithm {
 	// execute the algorithm for now
 	/**
 	 * Runs the algorithm.
+	 * @throws LpSolveException 
 	 */
 	public void execute();
-	
+
 	// Give a name for the algorithm
 	/**
 	 * Gets the name of the algorithm in String form.

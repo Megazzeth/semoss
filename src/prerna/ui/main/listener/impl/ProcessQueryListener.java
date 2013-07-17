@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -18,16 +17,12 @@ import javax.swing.JToggleButton;
 
 import org.apache.log4j.Logger;
 
-import prerna.om.DBCMVertex;
 import prerna.rdf.engine.api.IEngine;
-import prerna.ui.components.GraphPlaySheet;
 import prerna.ui.components.ParamComboBox;
 import prerna.ui.components.ParamPanel;
 import prerna.ui.components.SparqlArea;
-import prerna.ui.components.VertexFilterData;
 import prerna.ui.components.api.IPlaySheet;
 import prerna.ui.helpers.PlaysheetCreateRunner;
-import prerna.ui.helpers.PlaysheetExtendRunner;
 import prerna.ui.helpers.PlaysheetOverlayRunner;
 import prerna.util.Constants;
 import prerna.util.DIHelper;
@@ -61,7 +56,6 @@ public class ProcessQueryListener extends SparqlAreaListener {
 			// currently assumes all queries are SPARQL, needs some filtering if there are other types of queries
 			// especially the ones that would use JGraph
 			// get the query
-			JToggleButton extend = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.EXTEND);
 			JToggleButton spql = (JToggleButton)DIHelper.getInstance().getLocalProp(Constants.SPARQLBTN);
 			//if (!extend.isSelected() && !spql.isSelected())
 			if (!spql.isSelected())
@@ -116,6 +110,7 @@ public class ProcessQueryListener extends SparqlAreaListener {
 			// specifically what sheet we need to refer to
 			
 			JList list = (JList)DIHelper.getInstance().getLocalProp(Constants.REPO_LIST);
+
 			// get the selected repository
 			Object [] repos = (Object [])list.getSelectedValues();
 			
@@ -143,6 +138,7 @@ public class ProcessQueryListener extends SparqlAreaListener {
 			for(int repoIndex = 0;repoIndex < repos.length;repoIndex++)
 			{
 				IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(repos[repoIndex]+"");
+				engine.setEngineName(repos[repoIndex]+"");
 				logger.info("Selecting repository " + repos[repoIndex]);
 				String question = id + QuestionPlaySheetStore.getInstance().getCount();
 				// use the layout to load the sheet later
@@ -173,11 +169,6 @@ public class ProcessQueryListener extends SparqlAreaListener {
 				}
 				else
 				{
-					int level=1;
-					DIHelper.getInstance().setLocalProperty(Constants.TRAVERSE_LEVEL, level);
-					Vector traverseV = new Vector();
-					traverseV.setSize(10);
-					DIHelper.getInstance().setLocalProperty(Constants.TRAVERSE_VECTOR, traverseV);
 					playSheet.setTitle("Question: " + questionList.getSelectedItem()+" -- " + title);
 					playSheet.setQuery(this.sparql.getText());
 					playSheet.setParamPanel((ParamPanel)curPanel);
