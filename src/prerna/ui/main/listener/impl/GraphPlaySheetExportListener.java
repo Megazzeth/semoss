@@ -7,10 +7,9 @@ import java.util.regex.Pattern;
 import javax.swing.JDesktopPane;
 
 import org.apache.log4j.Logger;
-import org.openrdf.query.TupleQueryResult;
 
 import prerna.rdf.engine.api.IEngine;
-import prerna.rdf.engine.impl.InMemorySesameEngine;
+import prerna.rdf.engine.impl.InMemoryJenaEngine;
 import prerna.ui.components.GraphPlaySheet;
 import prerna.ui.components.GridPlaySheet;
 import prerna.ui.components.ParamPanel;
@@ -18,6 +17,9 @@ import prerna.ui.components.api.IPlaySheet;
 import prerna.util.Constants;
 import prerna.util.DIHelper;
 import prerna.util.QuestionPlaySheetStore;
+
+import com.hp.hpl.jena.query.ResultSet;
+import com.hp.hpl.jena.rdf.model.Model;
 
 public class GraphPlaySheetExportListener  extends AbstractPopupMenuListener{
 
@@ -58,15 +60,16 @@ public class GraphPlaySheetExportListener  extends AbstractPopupMenuListener{
 		String title = "EXPORT: " + playSheet.getTitle();
 		IEngine engine = playSheet.getRDFEngine();
 		
-		IEngine jenaEngine = new InMemorySesameEngine();
-		((InMemorySesameEngine)jenaEngine).setRepositoryConnection(playSheet.rc);
-
+		InMemoryJenaEngine jenaEng = new InMemoryJenaEngine();
+		Model jenaModel = playSheet.getJenaModel();
+		jenaEng.setModel(jenaModel);
+		
 		
 		String sparql2 = "SELECT ?s ?p ?o WHERE {?s ?p ?o}";
 		String sparql = "SELECT ?activity1 ?need ?data WHERE {{?activity1 <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Concept/Activity>;} {?need <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://health.mil/ontologies/dbcm/Relation/Needs> ;} {?data <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Concept/DataObject> ;} {?activity1 ?need ?data.}}";
 		
-		TupleQueryResult rs = (TupleQueryResult) jenaEngine.execSelectQuery(sparql2);
-		//NewplaySheet.setResultSet(rs);
+		ResultSet rs = (ResultSet) jenaEng.execSelectQuery(sparql2);
+		NewplaySheet.setResultSet(rs);
 		
 		NewplaySheet.setTitle(title);
 		//NewplaySheet.setQuery(selectQuery);

@@ -24,7 +24,11 @@ public class VertexPaintTransformer implements Transformer <DBCMVertex, Paint> {
 	{
 		this.verticeURI2Show = verticeURI2Show;
 	}
-	
+
+	public Hashtable getVertHash()
+	{
+		return verticeURI2Show;
+	}
 	
 
 	@Override

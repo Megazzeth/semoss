@@ -111,13 +111,11 @@ public class PlayPane extends JFrame {
 	//Help Tab Components
 	private JTextArea aboutArea;
 	private JTextPane releaseNoteArea;
-	public JButton htmlTrainingBtn, pptTrainingBtn;
 	
 	//Custom Update Components
 	public JButton btnCustomUpdate;
 	private JScrollPane customUpdateScrollPane;
 	public JTextPane customUpdateTextPane;
-	public JButton transitionReportGenButton = new JButton();
 	
 	//Import Components
 	public JComboBox dbImportTypeComboBox;
@@ -128,7 +126,7 @@ public class PlayPane extends JFrame {
 	//Export Components
 	public JLabel lblMaxExportLimit;
 	public JButton btnExportNodeLoadSheets, btnExportRelationshipsLoadSheets;
-	public JComboBox subjectNodeTypeComboBox1, subjectNodeTypeComboBox2, subjectNodeTypeComboBox3, subjectNodeTypeComboBox4, subjectNodeTypeComboBox5,
+	public JComboBox exportDataSourceComboBox, subjectNodeTypeComboBox1, subjectNodeTypeComboBox2, subjectNodeTypeComboBox3, subjectNodeTypeComboBox4, subjectNodeTypeComboBox5,
 	subjectNodeTypeComboBox6, subjectNodeTypeComboBox7, subjectNodeTypeComboBox8, subjectNodeTypeComboBox9;
 	public JComboBox objectNodeTypeComboBox1, objectNodeTypeComboBox2, objectNodeTypeComboBox3, objectNodeTypeComboBox4, objectNodeTypeComboBox5, 
 	objectNodeTypeComboBox6, objectNodeTypeComboBox7, objectNodeTypeComboBox8, objectNodeTypeComboBox9;
@@ -137,6 +135,8 @@ public class PlayPane extends JFrame {
 	public JButton btnAddExport;
 	private Component rigidArea;
 	public JButton btnClearAll;
+	public JButton saveSudowl;
+	private MultiSelectDropDown comboBox;
 	
 	/**
 	 * Launch the application.
@@ -161,6 +161,7 @@ public class PlayPane extends JFrame {
 		if(c instanceof JScrollPane) {
 			((JScrollPane) c).getVerticalScrollBar().setUI(new NewScrollBarUI());
 		}
+
 
 		popup = dbImportTypeComboBox.getUI().getAccessibleChild(dbImportTypeComboBox, 0);
 		c = ((Container) popup).getComponent(0);
@@ -220,6 +221,7 @@ public class PlayPane extends JFrame {
 			}
 			logger.debug("Loading <" + fieldName + "> <> " + obj);
 			DIHelper.getInstance().setLocalProperty(fieldName, obj);
+			
 		}
 
 		// need to also add the listeners respective views
@@ -281,6 +283,7 @@ public class PlayPane extends JFrame {
 		}
 		repoList.setModel(listModel);
 		repoList.setSelectedIndex(0);
+		repoList.setVisibleRowCount(listModel.getSize()/2);
 
 		// set the models now
 		// set the perspectives information
@@ -697,29 +700,6 @@ public class PlayPane extends JFrame {
 		}
 		releaseNotesData = releaseNotesData + "";
 
-		
-		String engines = (String)DIHelper.getInstance().getLocalProp(Constants.ENGINES);
-		StringTokenizer tokens = new StringTokenizer(engines,";");
-		DefaultComboBoxModel model = new DefaultComboBoxModel(new String[0]);
-		
-		while(tokens.hasMoreTokens())
-		{		
-			String engineName = tokens.nextToken();
-			IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(engineName);
-			if(engine.isConnected())
-				model.addElement(engineName);
-		}
-		
-		tokens = new StringTokenizer(engines,";");
-		DefaultComboBoxModel model2 = new DefaultComboBoxModel(new String[0]);
-		
-		while(tokens.hasMoreTokens())
-		{		
-			String engineName = tokens.nextToken();
-			IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(engineName);
-			if(engine.isConnected())
-				model2.addElement(engineName);
-		}
 
 		JScrollPane dbUpdatePanelScroll = new JScrollPane();
 
@@ -729,20 +709,40 @@ public class PlayPane extends JFrame {
 		loadSheetExportPanel.setBackground(SystemColor.control);
 		dbUpdatePanelScroll.setViewportView(loadSheetExportPanel);
 		GridBagLayout gbl_loadSheetExportPanel = new GridBagLayout();
-		gbl_loadSheetExportPanel.columnWidths = new int[]{10, 302, 233, 0, 0};
-		gbl_loadSheetExportPanel.rowHeights = new int[]{10, 0, 0, 36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 37, 0};
+		gbl_loadSheetExportPanel.columnWidths = new int[]{10, 0, 0, 0, 0};
+		gbl_loadSheetExportPanel.rowHeights = new int[]{10, 0, 0, 0, 0, 36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 37, 0, 0};
 		gbl_loadSheetExportPanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_loadSheetExportPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_loadSheetExportPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		loadSheetExportPanel.setLayout(gbl_loadSheetExportPanel);
+
+		JLabel lblExportDataTitle = new JLabel("Export Data");
+		lblExportDataTitle.setFont(new Font("Tahoma", Font.BOLD, 12));
+		GridBagConstraints gbc_lblExportDataTitle = new GridBagConstraints();
+		gbc_lblExportDataTitle.anchor = GridBagConstraints.WEST;
+		gbc_lblExportDataTitle.insets = new Insets(0, 0, 5, 5);
+		gbc_lblExportDataTitle.gridx = 1;
+		gbc_lblExportDataTitle.gridy = 1;
+		loadSheetExportPanel.add(lblExportDataTitle, gbc_lblExportDataTitle);
 		
-				JLabel lblExportDataTitle = new JLabel("Export Data");
-				lblExportDataTitle.setFont(new Font("Tahoma", Font.BOLD, 12));
-				GridBagConstraints gbc_lblExportDataTitle = new GridBagConstraints();
-				gbc_lblExportDataTitle.anchor = GridBagConstraints.WEST;
-				gbc_lblExportDataTitle.insets = new Insets(0, 0, 5, 5);
-				gbc_lblExportDataTitle.gridx = 1;
-				gbc_lblExportDataTitle.gridy = 1;
-				loadSheetExportPanel.add(lblExportDataTitle, gbc_lblExportDataTitle);
+		JLabel lblExportDatabase = new JLabel("Source DB: ");
+		lblExportDatabase.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		GridBagConstraints gbc_lblExportDatabase = new GridBagConstraints();
+		gbc_lblExportDatabase.anchor = GridBagConstraints.WEST;
+		gbc_lblExportDatabase.insets = new Insets(0, 0, 5, 5);
+		gbc_lblExportDatabase.gridx = 1;
+		gbc_lblExportDatabase.gridy = 2;
+		loadSheetExportPanel.add(lblExportDatabase, gbc_lblExportDatabase);
+
+		exportDataSourceComboBox = new JComboBox();
+		exportDataSourceComboBox.setName("subjectNodeTypeComboBox1");
+		exportDataSourceComboBox.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		exportDataSourceComboBox.setBackground(Color.GRAY);
+		GridBagConstraints gbc_exportDataSourceComboBox = new GridBagConstraints();
+		gbc_exportDataSourceComboBox.fill = GridBagConstraints.HORIZONTAL;
+		gbc_exportDataSourceComboBox.insets = new Insets(0, 0, 5, 5);
+		gbc_exportDataSourceComboBox.gridx = 1;
+		gbc_exportDataSourceComboBox.gridy = 3;
+		loadSheetExportPanel.add(exportDataSourceComboBox, gbc_exportDataSourceComboBox);
 
 		JLabel lblSubjectNodeType = new JLabel("Node Type (In)");
 		lblSubjectNodeType.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -750,7 +750,7 @@ public class PlayPane extends JFrame {
 		gbc_lblSubjectNodeType.anchor = GridBagConstraints.WEST;
 		gbc_lblSubjectNodeType.insets = new Insets(0, 0, 5, 5);
 		gbc_lblSubjectNodeType.gridx = 1;
-		gbc_lblSubjectNodeType.gridy = 2;
+		gbc_lblSubjectNodeType.gridy = 4;
 		loadSheetExportPanel.add(lblSubjectNodeType, gbc_lblSubjectNodeType);
 
 		JLabel lblRelationship = new JLabel("Relationship");
@@ -759,7 +759,7 @@ public class PlayPane extends JFrame {
 		gbc_lblRelationship.anchor = GridBagConstraints.WEST;
 		gbc_lblRelationship.insets = new Insets(0, 0, 5, 5);
 		gbc_lblRelationship.gridx = 2;
-		gbc_lblRelationship.gridy = 2;
+		gbc_lblRelationship.gridy = 4;
 		loadSheetExportPanel.add(lblRelationship, gbc_lblRelationship);
 
 		JLabel lblObjectNodeType = new JLabel("Node Type (Out)");
@@ -768,7 +768,7 @@ public class PlayPane extends JFrame {
 		gbc_lblObjectNodeType.anchor = GridBagConstraints.WEST;
 		gbc_lblObjectNodeType.insets = new Insets(0, 0, 5, 0);
 		gbc_lblObjectNodeType.gridx = 3;
-		gbc_lblObjectNodeType.gridy = 2;
+		gbc_lblObjectNodeType.gridy = 4;
 		loadSheetExportPanel.add(lblObjectNodeType, gbc_lblObjectNodeType);
 
 		subjectNodeTypeComboBox1 = new JComboBox();
@@ -777,10 +777,10 @@ public class PlayPane extends JFrame {
 		subjectNodeTypeComboBox1.setName(Constants.EXPORT_LOAD_SHEET_SUBJECT_NODE_TYPE_COMBOBOX + "1");
 		subjectNodeTypeComboBox1.setPreferredSize(new Dimension(300, 25));
 		GridBagConstraints gbc_subjectNodeTypeComboBox1 = new GridBagConstraints();
-		gbc_subjectNodeTypeComboBox1.anchor = GridBagConstraints.WEST;
+		gbc_subjectNodeTypeComboBox1.fill = GridBagConstraints.HORIZONTAL;
 		gbc_subjectNodeTypeComboBox1.insets = new Insets(0, 0, 5, 5);
 		gbc_subjectNodeTypeComboBox1.gridx = 1;
-		gbc_subjectNodeTypeComboBox1.gridy = 3;
+		gbc_subjectNodeTypeComboBox1.gridy = 5;
 		loadSheetExportPanel.add(subjectNodeTypeComboBox1, gbc_subjectNodeTypeComboBox1);
 
 		nodeRelationshipComboBox1 = new JComboBox();
@@ -792,7 +792,7 @@ public class PlayPane extends JFrame {
 		gbc_nodeRelationshipComboBox1.anchor = GridBagConstraints.WEST;
 		gbc_nodeRelationshipComboBox1.insets = new Insets(0, 0, 5, 5);
 		gbc_nodeRelationshipComboBox1.gridx = 2;
-		gbc_nodeRelationshipComboBox1.gridy = 3;
+		gbc_nodeRelationshipComboBox1.gridy = 5;
 		loadSheetExportPanel.add(nodeRelationshipComboBox1, gbc_nodeRelationshipComboBox1);
 
 		objectNodeTypeComboBox1 = new JComboBox();
@@ -803,7 +803,7 @@ public class PlayPane extends JFrame {
 		gbc_objectNodeTypeComboBox1.anchor = GridBagConstraints.WEST;
 		gbc_objectNodeTypeComboBox1.insets = new Insets(0, 0, 5, 0);
 		gbc_objectNodeTypeComboBox1.gridx = 3;
-		gbc_objectNodeTypeComboBox1.gridy = 3;
+		gbc_objectNodeTypeComboBox1.gridy = 5;
 		loadSheetExportPanel.add(objectNodeTypeComboBox1, gbc_objectNodeTypeComboBox1);
 
 		subjectNodeTypeComboBox2 = new JComboBox();
@@ -812,10 +812,10 @@ public class PlayPane extends JFrame {
 		subjectNodeTypeComboBox2.setName(Constants.EXPORT_LOAD_SHEET_SUBJECT_NODE_TYPE_COMBOBOX + "2");
 		subjectNodeTypeComboBox2.setPreferredSize(new Dimension(300, 25));
 		GridBagConstraints gbc_subjectNodeTypeComboBox2 = new GridBagConstraints();
-		gbc_subjectNodeTypeComboBox2.anchor = GridBagConstraints.WEST;
+		gbc_subjectNodeTypeComboBox2.fill = GridBagConstraints.HORIZONTAL;
 		gbc_subjectNodeTypeComboBox2.insets = new Insets(0, 0, 5, 5);
 		gbc_subjectNodeTypeComboBox2.gridx = 1;
-		gbc_subjectNodeTypeComboBox2.gridy = 4;
+		gbc_subjectNodeTypeComboBox2.gridy = 6;
 		subjectNodeTypeComboBox2.setVisible(false);
 		loadSheetExportPanel.add(subjectNodeTypeComboBox2, gbc_subjectNodeTypeComboBox2);
 
@@ -828,7 +828,7 @@ public class PlayPane extends JFrame {
 		gbc_nodeRelationshipComboBox2.insets = new Insets(0, 0, 5, 5);
 		gbc_nodeRelationshipComboBox2.fill = GridBagConstraints.HORIZONTAL;
 		gbc_nodeRelationshipComboBox2.gridx = 2;
-		gbc_nodeRelationshipComboBox2.gridy = 4;
+		gbc_nodeRelationshipComboBox2.gridy = 6;
 		nodeRelationshipComboBox2.setVisible(false);
 		loadSheetExportPanel.add(nodeRelationshipComboBox2, gbc_nodeRelationshipComboBox2);
 
@@ -840,7 +840,7 @@ public class PlayPane extends JFrame {
 		gbc_objectNodeTypeComboBox2.insets = new Insets(0, 0, 5, 0);
 		gbc_objectNodeTypeComboBox2.fill = GridBagConstraints.HORIZONTAL;
 		gbc_objectNodeTypeComboBox2.gridx = 3;
-		gbc_objectNodeTypeComboBox2.gridy = 4;
+		gbc_objectNodeTypeComboBox2.gridy = 6;
 		objectNodeTypeComboBox2.setVisible(false);
 		loadSheetExportPanel.add(objectNodeTypeComboBox2, gbc_objectNodeTypeComboBox2);
 
@@ -853,7 +853,7 @@ public class PlayPane extends JFrame {
 		gbc_subjectNodeTypeComboBox3.insets = new Insets(0, 0, 5, 5);
 		gbc_subjectNodeTypeComboBox3.fill = GridBagConstraints.HORIZONTAL;
 		gbc_subjectNodeTypeComboBox3.gridx = 1;
-		gbc_subjectNodeTypeComboBox3.gridy = 5;
+		gbc_subjectNodeTypeComboBox3.gridy = 7;
 		subjectNodeTypeComboBox3.setVisible(false);
 		loadSheetExportPanel.add(subjectNodeTypeComboBox3, gbc_subjectNodeTypeComboBox3);
 
@@ -866,7 +866,7 @@ public class PlayPane extends JFrame {
 		gbc_nodeRelationshipComboBox3.insets = new Insets(0, 0, 5, 5);
 		gbc_nodeRelationshipComboBox3.fill = GridBagConstraints.HORIZONTAL;
 		gbc_nodeRelationshipComboBox3.gridx = 2;
-		gbc_nodeRelationshipComboBox3.gridy = 5;
+		gbc_nodeRelationshipComboBox3.gridy = 7;
 		nodeRelationshipComboBox3.setVisible(false);
 		loadSheetExportPanel.add(nodeRelationshipComboBox3, gbc_nodeRelationshipComboBox3);
 
@@ -878,7 +878,7 @@ public class PlayPane extends JFrame {
 		gbc_objectNodeTypeComboBox3.insets = new Insets(0, 0, 5, 0);
 		gbc_objectNodeTypeComboBox3.fill = GridBagConstraints.HORIZONTAL;
 		gbc_objectNodeTypeComboBox3.gridx = 3;
-		gbc_objectNodeTypeComboBox3.gridy = 5;
+		gbc_objectNodeTypeComboBox3.gridy = 7;
 		objectNodeTypeComboBox3.setVisible(false);
 		loadSheetExportPanel.add(objectNodeTypeComboBox3, gbc_objectNodeTypeComboBox3);
 
@@ -891,7 +891,7 @@ public class PlayPane extends JFrame {
 		gbc_subjectNodeTypeComboBox4.insets = new Insets(0, 0, 5, 5);
 		gbc_subjectNodeTypeComboBox4.fill = GridBagConstraints.HORIZONTAL;
 		gbc_subjectNodeTypeComboBox4.gridx = 1;
-		gbc_subjectNodeTypeComboBox4.gridy = 6;
+		gbc_subjectNodeTypeComboBox4.gridy = 8;
 		subjectNodeTypeComboBox4.setVisible(false);
 		loadSheetExportPanel.add(subjectNodeTypeComboBox4, gbc_subjectNodeTypeComboBox4);
 
@@ -904,7 +904,7 @@ public class PlayPane extends JFrame {
 		gbc_nodeRelationshipComboBox4.insets = new Insets(0, 0, 5, 5);
 		gbc_nodeRelationshipComboBox4.fill = GridBagConstraints.HORIZONTAL;
 		gbc_nodeRelationshipComboBox4.gridx = 2;
-		gbc_nodeRelationshipComboBox4.gridy = 6;
+		gbc_nodeRelationshipComboBox4.gridy = 8;
 		nodeRelationshipComboBox4.setVisible(false);
 		loadSheetExportPanel.add(nodeRelationshipComboBox4, gbc_nodeRelationshipComboBox4);
 
@@ -916,7 +916,7 @@ public class PlayPane extends JFrame {
 		gbc_objectNodeTypeComboBox4.insets = new Insets(0, 0, 5, 0);
 		gbc_objectNodeTypeComboBox4.fill = GridBagConstraints.HORIZONTAL;
 		gbc_objectNodeTypeComboBox4.gridx = 3;
-		gbc_objectNodeTypeComboBox4.gridy = 6;
+		gbc_objectNodeTypeComboBox4.gridy = 8;
 		objectNodeTypeComboBox4.setVisible(false);
 		loadSheetExportPanel.add(objectNodeTypeComboBox4, gbc_objectNodeTypeComboBox4);
 
@@ -929,7 +929,7 @@ public class PlayPane extends JFrame {
 		gbc_subjectNodeTypeComboBox5.insets = new Insets(0, 0, 5, 5);
 		gbc_subjectNodeTypeComboBox5.fill = GridBagConstraints.HORIZONTAL;
 		gbc_subjectNodeTypeComboBox5.gridx = 1;
-		gbc_subjectNodeTypeComboBox5.gridy = 7;
+		gbc_subjectNodeTypeComboBox5.gridy = 9;
 		subjectNodeTypeComboBox5.setVisible(false);
 		loadSheetExportPanel.add(subjectNodeTypeComboBox5, gbc_subjectNodeTypeComboBox5);
 
@@ -942,7 +942,7 @@ public class PlayPane extends JFrame {
 		gbc_nodeRelationshipComboBox5.insets = new Insets(0, 0, 5, 5);
 		gbc_nodeRelationshipComboBox5.fill = GridBagConstraints.HORIZONTAL;
 		gbc_nodeRelationshipComboBox5.gridx = 2;
-		gbc_nodeRelationshipComboBox5.gridy = 7;
+		gbc_nodeRelationshipComboBox5.gridy = 9;
 		nodeRelationshipComboBox5.setVisible(false);
 		loadSheetExportPanel.add(nodeRelationshipComboBox5, gbc_nodeRelationshipComboBox5);
 
@@ -954,7 +954,7 @@ public class PlayPane extends JFrame {
 		gbc_objectNodeTypeComboBox5.insets = new Insets(0, 0, 5, 0);
 		gbc_objectNodeTypeComboBox5.fill = GridBagConstraints.HORIZONTAL;
 		gbc_objectNodeTypeComboBox5.gridx = 3;
-		gbc_objectNodeTypeComboBox5.gridy = 7;
+		gbc_objectNodeTypeComboBox5.gridy = 9;
 		objectNodeTypeComboBox5.setVisible(false);
 		loadSheetExportPanel.add(objectNodeTypeComboBox5, gbc_objectNodeTypeComboBox5);
 
@@ -967,7 +967,7 @@ public class PlayPane extends JFrame {
 		gbc_subjectNodeTypeComboBox6.insets = new Insets(0, 0, 5, 5);
 		gbc_subjectNodeTypeComboBox6.fill = GridBagConstraints.HORIZONTAL;
 		gbc_subjectNodeTypeComboBox6.gridx = 1;
-		gbc_subjectNodeTypeComboBox6.gridy = 8;
+		gbc_subjectNodeTypeComboBox6.gridy = 10;
 		subjectNodeTypeComboBox6.setVisible(false);
 		loadSheetExportPanel.add(subjectNodeTypeComboBox6, gbc_subjectNodeTypeComboBox6);
 
@@ -980,7 +980,7 @@ public class PlayPane extends JFrame {
 		gbc_nodeRelationshipComboBox6.insets = new Insets(0, 0, 5, 5);
 		gbc_nodeRelationshipComboBox6.fill = GridBagConstraints.HORIZONTAL;
 		gbc_nodeRelationshipComboBox6.gridx = 2;
-		gbc_nodeRelationshipComboBox6.gridy = 8;
+		gbc_nodeRelationshipComboBox6.gridy = 10;
 		nodeRelationshipComboBox6.setVisible(false);
 		loadSheetExportPanel.add(nodeRelationshipComboBox6, gbc_nodeRelationshipComboBox6);
 
@@ -992,7 +992,7 @@ public class PlayPane extends JFrame {
 		gbc_objectNodeTypeComboBox6.insets = new Insets(0, 0, 5, 0);
 		gbc_objectNodeTypeComboBox6.fill = GridBagConstraints.HORIZONTAL;
 		gbc_objectNodeTypeComboBox6.gridx = 3;
-		gbc_objectNodeTypeComboBox6.gridy = 8;
+		gbc_objectNodeTypeComboBox6.gridy = 10;
 		objectNodeTypeComboBox6.setVisible(false);
 		loadSheetExportPanel.add(objectNodeTypeComboBox6, gbc_objectNodeTypeComboBox6);
 
@@ -1005,7 +1005,7 @@ public class PlayPane extends JFrame {
 		gbc_subjectNodeTypeComboBox7.insets = new Insets(0, 0, 5, 5);
 		gbc_subjectNodeTypeComboBox7.fill = GridBagConstraints.HORIZONTAL;
 		gbc_subjectNodeTypeComboBox7.gridx = 1;
-		gbc_subjectNodeTypeComboBox7.gridy = 9;
+		gbc_subjectNodeTypeComboBox7.gridy = 11;
 		subjectNodeTypeComboBox7.setVisible(false);
 		loadSheetExportPanel.add(subjectNodeTypeComboBox7, gbc_subjectNodeTypeComboBox7);
 
@@ -1018,7 +1018,7 @@ public class PlayPane extends JFrame {
 		gbc_nodeRelationshipComboBox7.insets = new Insets(0, 0, 5, 5);
 		gbc_nodeRelationshipComboBox7.fill = GridBagConstraints.HORIZONTAL;
 		gbc_nodeRelationshipComboBox7.gridx = 2;
-		gbc_nodeRelationshipComboBox7.gridy = 9;
+		gbc_nodeRelationshipComboBox7.gridy = 11;
 		nodeRelationshipComboBox7.setVisible(false);
 		loadSheetExportPanel.add(nodeRelationshipComboBox7, gbc_nodeRelationshipComboBox7);
 
@@ -1030,7 +1030,7 @@ public class PlayPane extends JFrame {
 		gbc_objectNodeTypeComboBox7.insets = new Insets(0, 0, 5, 0);
 		gbc_objectNodeTypeComboBox7.fill = GridBagConstraints.HORIZONTAL;
 		gbc_objectNodeTypeComboBox7.gridx = 3;
-		gbc_objectNodeTypeComboBox7.gridy = 9;
+		gbc_objectNodeTypeComboBox7.gridy = 11;
 		objectNodeTypeComboBox7.setVisible(false);
 		loadSheetExportPanel.add(objectNodeTypeComboBox7, gbc_objectNodeTypeComboBox7);
 
@@ -1043,7 +1043,7 @@ public class PlayPane extends JFrame {
 		gbc_subjectNodeTypeComboBox8.insets = new Insets(0, 0, 5, 5);
 		gbc_subjectNodeTypeComboBox8.fill = GridBagConstraints.HORIZONTAL;
 		gbc_subjectNodeTypeComboBox8.gridx = 1;
-		gbc_subjectNodeTypeComboBox8.gridy = 10;
+		gbc_subjectNodeTypeComboBox8.gridy = 12;
 		subjectNodeTypeComboBox8.setVisible(false);
 		loadSheetExportPanel.add(subjectNodeTypeComboBox8, gbc_subjectNodeTypeComboBox8);
 
@@ -1056,7 +1056,7 @@ public class PlayPane extends JFrame {
 		gbc_nodeRelationshipComboBox8.insets = new Insets(0, 0, 5, 5);
 		gbc_nodeRelationshipComboBox8.fill = GridBagConstraints.HORIZONTAL;
 		gbc_nodeRelationshipComboBox8.gridx = 2;
-		gbc_nodeRelationshipComboBox8.gridy = 10;
+		gbc_nodeRelationshipComboBox8.gridy = 12;
 		nodeRelationshipComboBox8.setVisible(false);
 		loadSheetExportPanel.add(nodeRelationshipComboBox8, gbc_nodeRelationshipComboBox8);
 
@@ -1068,7 +1068,7 @@ public class PlayPane extends JFrame {
 		gbc_objectNodeTypeComboBox8.insets = new Insets(0, 0, 5, 0);
 		gbc_objectNodeTypeComboBox8.fill = GridBagConstraints.HORIZONTAL;
 		gbc_objectNodeTypeComboBox8.gridx = 3;
-		gbc_objectNodeTypeComboBox8.gridy = 10;
+		gbc_objectNodeTypeComboBox8.gridy = 12;
 		objectNodeTypeComboBox8.setVisible(false);
 		loadSheetExportPanel.add(objectNodeTypeComboBox8, gbc_objectNodeTypeComboBox8);
 
@@ -1081,7 +1081,7 @@ public class PlayPane extends JFrame {
 		gbc_subjectNodeTypeComboBox9.insets = new Insets(0, 0, 5, 5);
 		gbc_subjectNodeTypeComboBox9.fill = GridBagConstraints.HORIZONTAL;
 		gbc_subjectNodeTypeComboBox9.gridx = 1;
-		gbc_subjectNodeTypeComboBox9.gridy = 11;
+		gbc_subjectNodeTypeComboBox9.gridy = 13;
 		subjectNodeTypeComboBox9.setVisible(false);
 		loadSheetExportPanel.add(subjectNodeTypeComboBox9, gbc_subjectNodeTypeComboBox9);
 
@@ -1094,7 +1094,7 @@ public class PlayPane extends JFrame {
 		gbc_nodeRelationshipComboBox9.insets = new Insets(0, 0, 5, 5);
 		gbc_nodeRelationshipComboBox9.fill = GridBagConstraints.HORIZONTAL;
 		gbc_nodeRelationshipComboBox9.gridx = 2;
-		gbc_nodeRelationshipComboBox9.gridy = 11;
+		gbc_nodeRelationshipComboBox9.gridy = 13;
 		nodeRelationshipComboBox9.setVisible(false);
 		loadSheetExportPanel.add(nodeRelationshipComboBox9, gbc_nodeRelationshipComboBox9);
 
@@ -1106,7 +1106,7 @@ public class PlayPane extends JFrame {
 		gbc_objectNodeTypeComboBox9.insets = new Insets(0, 0, 5, 0);
 		gbc_objectNodeTypeComboBox9.fill = GridBagConstraints.HORIZONTAL;
 		gbc_objectNodeTypeComboBox9.gridx = 3;
-		gbc_objectNodeTypeComboBox9.gridy = 11;
+		gbc_objectNodeTypeComboBox9.gridy = 13;
 		objectNodeTypeComboBox9.setVisible(false);
 		loadSheetExportPanel.add(objectNodeTypeComboBox9, gbc_objectNodeTypeComboBox9);
 
@@ -1116,7 +1116,7 @@ public class PlayPane extends JFrame {
 		gbc_btnAddExport.anchor = GridBagConstraints.WEST;
 		gbc_btnAddExport.insets = new Insets(0, 0, 5, 5);
 		gbc_btnAddExport.gridx = 1;
-		gbc_btnAddExport.gridy = 12;
+		gbc_btnAddExport.gridy = 14;
 		loadSheetExportPanel.add(btnAddExport, gbc_btnAddExport);
 
 		lblMaxExportLimit = new JLabel("Max Export Limit: " + Constants.MAX_EXPORTS);
@@ -1125,7 +1125,7 @@ public class PlayPane extends JFrame {
 		gbc_lblMaxExportLimit.anchor = GridBagConstraints.WEST;
 		gbc_lblMaxExportLimit.insets = new Insets(0, 0, 5, 5);
 		gbc_lblMaxExportLimit.gridx = 1;
-		gbc_lblMaxExportLimit.gridy = 13;
+		gbc_lblMaxExportLimit.gridy = 15;
 		lblMaxExportLimit.setVisible(false);
 		loadSheetExportPanel.add(lblMaxExportLimit, gbc_lblMaxExportLimit);
 
@@ -1135,32 +1135,32 @@ public class PlayPane extends JFrame {
 		gbc_btnClearAll.anchor = GridBagConstraints.WEST;
 		gbc_btnClearAll.insets = new Insets(0, 0, 5, 5);
 		gbc_btnClearAll.gridx = 1;
-		gbc_btnClearAll.gridy = 14;
+		gbc_btnClearAll.gridy = 16;
 		loadSheetExportPanel.add(btnClearAll, gbc_btnClearAll);
 
 		rigidArea = Box.createRigidArea(new Dimension(20, 20));
 		GridBagConstraints gbc_rigidArea = new GridBagConstraints();
 		gbc_rigidArea.insets = new Insets(0, 0, 5, 5);
 		gbc_rigidArea.gridx = 1;
-		gbc_rigidArea.gridy = 15;
+		gbc_rigidArea.gridy = 17;
 		loadSheetExportPanel.add(rigidArea, gbc_rigidArea);
 
 		btnExportNodeLoadSheets = new CustomButton("Export Node (In) Load Sheet");
 		btnExportNodeLoadSheets.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_btnExportNodeLoadSheets = new GridBagConstraints();
 		gbc_btnExportNodeLoadSheets.anchor = GridBagConstraints.WEST;
-		gbc_btnExportNodeLoadSheets.insets = new Insets(0, 0, 0, 5);
+		gbc_btnExportNodeLoadSheets.insets = new Insets(0, 0, 5, 5);
 		gbc_btnExportNodeLoadSheets.gridx = 1;
-		gbc_btnExportNodeLoadSheets.gridy = 16;
+		gbc_btnExportNodeLoadSheets.gridy = 18;
 		loadSheetExportPanel.add(btnExportNodeLoadSheets, gbc_btnExportNodeLoadSheets);
 
 		btnExportRelationshipsLoadSheets = new CustomButton("Export Relationship Load Sheet");
 		btnExportRelationshipsLoadSheets.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_btnExportRelationshipsLoad = new GridBagConstraints();
 		gbc_btnExportRelationshipsLoad.anchor = GridBagConstraints.WEST;
-		gbc_btnExportRelationshipsLoad.insets = new Insets(0, 0, 0, 5);
+		gbc_btnExportRelationshipsLoad.insets = new Insets(0, 0, 5, 5);
 		gbc_btnExportRelationshipsLoad.gridx = 2;
-		gbc_btnExportRelationshipsLoad.gridy = 16;
+		gbc_btnExportRelationshipsLoad.gridy = 18;
 		loadSheetExportPanel.add(btnExportRelationshipsLoadSheets, gbc_btnExportRelationshipsLoad);
 
 		JPanel settingsPanel = new JPanel();
@@ -1188,9 +1188,9 @@ public class PlayPane extends JFrame {
 		settingsPanel.add(helpPanel, gbc_helpPanel);
 		GridBagLayout gbl_helpPanel = new GridBagLayout();
 		gbl_helpPanel.columnWidths = new int[]{0, 0, 0, 0};
-		gbl_helpPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_helpPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_helpPanel.columnWeights = new double[]{0.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_helpPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_helpPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		helpPanel.setLayout(gbl_helpPanel);
 
 		JLabel lblAbout = new JLabel("      About");
@@ -1250,50 +1250,6 @@ public class PlayPane extends JFrame {
 		releaseNoteArea.setBackground(SystemColor.control);
 		releaseNoteArea.setEditable(false);
 
-		JLabel lblLearningMaterials = new JLabel("      Learning Materials");
-		lblLearningMaterials.setHorizontalAlignment(SwingConstants.LEFT);
-		lblLearningMaterials.setFont(new Font("Tahoma", Font.BOLD, 12));
-		GridBagConstraints gbc_lblLearningMaterials = new GridBagConstraints();
-		gbc_lblLearningMaterials.anchor = GridBagConstraints.WEST;
-		gbc_lblLearningMaterials.insets = new Insets(0, 0, 5, 5);
-		gbc_lblLearningMaterials.gridx = 1;
-		gbc_lblLearningMaterials.gridy = 5;
-		helpPanel.add(lblLearningMaterials, gbc_lblLearningMaterials);
-
-		JLabel lblHeidiMaterials = new JLabel("Interactive Powerpoint");
-		lblHeidiMaterials.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		GridBagConstraints gbc_lblHeidiMaterials = new GridBagConstraints();
-		gbc_lblHeidiMaterials.anchor = GridBagConstraints.NORTHWEST;
-		gbc_lblHeidiMaterials.insets = new Insets(0, 20, 5, 5);
-		gbc_lblHeidiMaterials.gridx = 1;
-		gbc_lblHeidiMaterials.gridy = 6;
-		helpPanel.add(lblHeidiMaterials, gbc_lblHeidiMaterials);
-
-		pptTrainingBtn = new CustomButton("Starting Interactive Powerpoint Training");
-		GridBagConstraints gbc_pptTrainingBtn = new GridBagConstraints();
-		gbc_pptTrainingBtn.anchor = GridBagConstraints.NORTHWEST;
-		gbc_pptTrainingBtn.insets = new Insets(0, 20, 5, 5);
-		gbc_pptTrainingBtn.gridx = 1;
-		gbc_pptTrainingBtn.gridy = 7;
-		helpPanel.add(pptTrainingBtn, gbc_pptTrainingBtn);
-
-		JLabel lblHowToVideo = new JLabel("How to Videos");
-		lblHowToVideo.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		GridBagConstraints gbc_lblHowToVideo = new GridBagConstraints();
-		gbc_lblHowToVideo.anchor = GridBagConstraints.NORTHWEST;
-		gbc_lblHowToVideo.insets = new Insets(0, 20, 5, 5);
-		gbc_lblHowToVideo.gridx = 1;
-		gbc_lblHowToVideo.gridy = 8;
-		helpPanel.add(lblHowToVideo, gbc_lblHowToVideo);
-
-		htmlTrainingBtn = new CustomButton("Start Simulation Training");
-		GridBagConstraints gbc_htmlTrainingBtn = new GridBagConstraints();
-		gbc_htmlTrainingBtn.anchor = GridBagConstraints.NORTHWEST;
-		gbc_htmlTrainingBtn.insets = new Insets(0, 20, 5, 5);
-		gbc_htmlTrainingBtn.gridx = 1;
-		gbc_htmlTrainingBtn.gridy = 9;
-		helpPanel.add(htmlTrainingBtn, gbc_htmlTrainingBtn);
-
 		JTabbedPane leftView = new JTabbedPane(JTabbedPane.TOP);
 		//JScrollPane leftScrollView = new JScrollPane(leftView);
 		splitPane.setLeftComponent(leftView);
@@ -1336,7 +1292,7 @@ public class PlayPane extends JFrame {
 		repoList.setBorder(new LineBorder(Color.LIGHT_GRAY));
 		repoList.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 		repoList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
-		//repoList.setVisibleRowCount(3);
+		//repoList.setVisibleRowCount(5);
 		repoList.ensureIndexIsVisible(repoList.getSelectedIndex());
 		GridBagConstraints gbc_repoList = new GridBagConstraints();
 		gbc_repoList.gridwidth = 4;
@@ -1345,6 +1301,7 @@ public class PlayPane extends JFrame {
 		gbc_repoList.gridx = 1;
 		gbc_repoList.gridy = 2;
 		JScrollPane listScrollPane = new JScrollPane(repoList);
+		listScrollPane.setPreferredSize(new Dimension(200,100));
 		listScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		listScrollPane.getVerticalScrollBar().setUI(new NewScrollBarUI());
 		inputPanel.add(listScrollPane, gbc_repoList);
@@ -1669,9 +1626,9 @@ public class PlayPane extends JFrame {
 		leftView.addTab("SUDOWL", null, owlPanel, null);
 		GridBagLayout gbl_owlPanel = new GridBagLayout();
 		gbl_owlPanel.columnWidths = new int[]{228, 0};
-		gbl_owlPanel.rowHeights = new int[]{29, 0, 0, 0, 0, 0, 0, 0};
+		gbl_owlPanel.rowHeights = new int[]{29, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_owlPanel.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_owlPanel.rowWeights = new double[]{0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_owlPanel.rowWeights = new double[]{0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		owlPanel.setLayout(gbl_owlPanel);
 
 		JLabel lblDataProperties = new JLabel("Data Properties");
@@ -1756,6 +1713,7 @@ public class PlayPane extends JFrame {
 		btnRepaintGraph = new CustomButton("Refresh");
 		btnRepaintGraph.setFont(new Font("Tahoma", Font.BOLD, 11));
 		GridBagConstraints gbc_btnRepaintGraph = new GridBagConstraints();
+		gbc_btnRepaintGraph.insets = new Insets(0, 0, 5, 0);
 		gbc_btnRepaintGraph.gridx = 0;
 		gbc_btnRepaintGraph.gridy = 6;
 		owlPanel.add(btnRepaintGraph, gbc_btnRepaintGraph);
@@ -2000,6 +1958,14 @@ public class PlayPane extends JFrame {
 		Style.registerTargetClassName(appendButton, ".standardButton");
 		Style.registerTargetClassName(btnCustomUpdate, ".standardButton");
 		Style.registerTargetClassName(btnRepaintGraph,  ".standardButton");
+		
+		saveSudowl = new CustomButton("Refresh");
+		saveSudowl.setText("Save");
+		saveSudowl.setFont(new Font("Tahoma", Font.BOLD, 11));
+		GridBagConstraints gbc_saveSudowl = new GridBagConstraints();
+		gbc_saveSudowl.gridx = 0;
+		gbc_saveSudowl.gridy = 7;
+		owlPanel.add(saveSudowl, gbc_saveSudowl);
 		Style.registerTargetClassName(btnColorShape,  ".standardButton");
 		Style.registerTargetClassName(btnResetDefaults,  ".standardButton");
 		Style.registerTargetClassName(refreshButton,  ".standardButton");
@@ -2013,8 +1979,6 @@ public class PlayPane extends JFrame {
 		Style.registerTargetClassName(btnClearAll,  ".standardButton");
 		Style.registerTargetClassName(btnExportNodeLoadSheets,  ".standardButton");
 		Style.registerTargetClassName(btnExportRelationshipsLoadSheets,  ".standardButton");
-		Style.registerTargetClassName(pptTrainingBtn,  ".standardButton");
-		Style.registerTargetClassName(htmlTrainingBtn,  ".standardButton");
 		CSSApplication css = new CSSApplication(getContentPane());
 		
 		scrollPane_1.getVerticalScrollBar().setUI(new NewScrollBarUI());

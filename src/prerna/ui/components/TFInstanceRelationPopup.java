@@ -99,9 +99,9 @@ public class TFInstanceRelationPopup extends JMenu implements MouseListener{
 			for(int vertIndex = 0;vertIndex < pickedVertex.length;vertIndex++)
 			{
 				if(vertIndex == 0)
-					fileName = "\"" + Utility.getInstanceName(pickedVertex[vertIndex].getURI()) + "\"";
+					fileName = "(<" + pickedVertex[vertIndex].getURI() + ">)";
 				else
-					fileName = fileName + "," + "\"" + Utility.getInstanceName(pickedVertex[vertIndex].getURI()) + "\"";
+					fileName = fileName + "(<" + pickedVertex[vertIndex].getURI() + ">)";
 			}
 			hash.put("FILTER_VALUES", fileName);
 			// get the repository and execute the query

@@ -31,10 +31,10 @@ public class LayoutMenuListener implements ActionListener {
 		// paint it
 		// get the query from the 
 		LayoutMenuItem item = (LayoutMenuItem)e.getSource();
-		try{
+		//try{
 			item.paintLayout();
-		}catch(Exception ex){
-			logger.warn(ex);
-		}
+		//}catch(Exception ex){
+		//	logger.warn(ex);
+		//}
 	}
 }

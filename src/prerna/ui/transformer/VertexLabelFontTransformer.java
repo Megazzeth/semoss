@@ -29,6 +29,10 @@ public class VertexLabelFontTransformer implements Transformer <DBCMVertex, Font
 		currentDefaultSize = initialDefaultSize;
 	}
 	
+	public int getCurrentFontSize(){
+		return currentDefaultSize;
+	}
+	
 	public void setVertHash(Hashtable verticeURI2Show)
 	{
 		this.verticeURI2Show = verticeURI2Show;

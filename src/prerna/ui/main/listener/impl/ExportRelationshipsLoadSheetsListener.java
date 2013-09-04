@@ -35,7 +35,7 @@ public class ExportRelationshipsLoadSheetsListener implements IChakraListener {
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
 		ArrayList<String[]> relationships = new ArrayList<String[]>();
-		for(int i = 1; i < Constants.MAX_EXPORTS; i++) {
+		for(int i = 1; i <= Constants.MAX_EXPORTS; i++) {
 			JComboBox subject = (JComboBox) DIHelper.getInstance().getLocalProp(Constants.EXPORT_LOAD_SHEET_SUBJECT_NODE_TYPE_COMBOBOX + i);
 			JComboBox object = (JComboBox) DIHelper.getInstance().getLocalProp(Constants.EXPORT_LOAD_SHEET_OBJECT_NODE_TYPE_COMBOBOX + i);
 			JComboBox relationship = (JComboBox) DIHelper.getInstance().getLocalProp(Constants.EXPORT_LOAD_SHEET_NODE_RELATIONSHIP_COMBOBOX + i);
@@ -49,7 +49,7 @@ public class ExportRelationshipsLoadSheetsListener implements IChakraListener {
 		RelationshipLoadingSheetWriter writer = new RelationshipLoadingSheetWriter();
 		String output = "";
 		String workingDir = System.getProperty("user.dir");
-		String folder = "/export/Relationships/";
+		String folder = "\\export\\Relationships\\";
 		Date date = new Date();
 		String writeFileName = "Relationships_LoadingSheet_" + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date()).replace(":", "") + ".xlsx";
 		String fileLoc = workingDir + folder + writeFileName;
@@ -83,9 +83,8 @@ public class ExportRelationshipsLoadSheetsListener implements IChakraListener {
 			query += "> ;} {?in ?relationship ?out ;} ";
 			query += "OPTIONAL { {?contains <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Relation/Contains> ;} {?relationship ?contains ?prop ;} } }";
 
-			JList repoList = (JList)DIHelper.getInstance().getLocalProp(Constants.REPO_LIST);
-			Object[] repo = (Object[])repoList.getSelectedValues();
-			IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(repo[0]+"");
+			JComboBox exportDataSourceComboBox = (JComboBox) DIHelper.getInstance().getLocalProp(Constants.EXPORT_LOAD_SHEET_SOURCE_COMBOBOX);
+			IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(exportDataSourceComboBox.getSelectedItem().toString());
 
 			SesameJenaSelectWrapper wrapper = new SesameJenaSelectWrapper();
 			wrapper.setQuery(query);

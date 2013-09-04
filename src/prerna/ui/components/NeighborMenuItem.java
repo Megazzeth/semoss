@@ -28,6 +28,7 @@ public class NeighborMenuItem extends JMenuItem{
 		super(name);
 		this.name = name;
 		this.query = query;
+		System.out.println("query in neighbor is "+query);
 		this.engine = engine;
 	}
 	
@@ -35,7 +36,7 @@ public class NeighborMenuItem extends JMenuItem{
 	{
 		// compose the query and paint the neighborhood
 		IPlaySheet playSheet = QuestionPlaySheetStore.getInstance().getActiveSheet();
-		logger.debug("Exending ");
+		logger.debug("Extending ");
 		Runnable playRunner = null;
 		// Here I need to get the active sheet
 		// get everything with respect the selected node type

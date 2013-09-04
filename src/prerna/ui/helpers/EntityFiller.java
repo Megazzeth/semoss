@@ -19,6 +19,8 @@ public class EntityFiller implements Runnable {
 	public String type;
 	public IEngine engine;
 	public String engineName;
+	public Vector<String> names;
+	public String extQuery;
 
 	@Override
 	public void run() {
@@ -31,7 +33,7 @@ public class EntityFiller implements Runnable {
 		System.out.println(" Engine Name is  " + engineName);
 		engine = (IEngine)DIHelper.getInstance().getLocalProp(engineName);
 		
-		Vector <String> names = new Vector<String>();
+		names = new Vector<String>();
 
 		if (box != null && type != null) { 
 			// only get the first one
@@ -45,8 +47,14 @@ public class EntityFiller implements Runnable {
 					// System.out.println()
 					Hashtable paramTable = new Hashtable();
 					paramTable.put(Constants.ENTITY, entityNS);
-					sparqlQuery = Utility.fillParam(sparqlQuery, paramTable);	
-				
+					if (extQuery!=null)
+					{
+						sparqlQuery=extQuery;
+					}
+					else
+					{
+						sparqlQuery = Utility.fillParam(sparqlQuery, paramTable);	
+					}
 					names = engine.getEntityOfType(sparqlQuery);
 					Collections.sort(names);
 					//DIHelper.getInstance().setLocalProperty(type, names);
@@ -82,5 +90,36 @@ public class EntityFiller implements Runnable {
 			box.setModel(model);
 			box.setEditable(false);
 		}
+		else if (type !=null)
+		{
+			String entityNS = DIHelper.getInstance().getProperty(type);
+			if (entityNS != null) {
+				if (DIHelper.getInstance().getLocalProp(type) == null) {
+					String sparqlQuery = DIHelper.getInstance().getProperty(
+							"TYPE" + "_" + Constants.QUERY);
+					// System.out.println()
+					Hashtable paramTable = new Hashtable();
+					paramTable.put(Constants.ENTITY, entityNS);
+					if (extQuery!=null)
+					{
+						sparqlQuery=extQuery;
+					}
+					else
+					{
+						sparqlQuery = Utility.fillParam(sparqlQuery, paramTable);	
+					}	
+				
+					names = engine.getEntityOfType(sparqlQuery);
+					Collections.sort(names);
+					//DIHelper.getInstance().setLocalProperty(type, names);
+				}
+			} 
+		}
+
+	}
+	
+	public void setExternalQuery(String query)
+	{
+		this.extQuery = query;
 	}
 }

@@ -2,6 +2,8 @@ package prerna.ui.main.listener.impl;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 import javax.swing.JComponent;
@@ -19,11 +21,15 @@ import prerna.ui.components.GraphPlaySheet;
 import prerna.ui.components.VertexPropertyTableModel;
 import prerna.ui.components.api.IChakraListener;
 import prerna.ui.components.api.IPlaySheet;
+import prerna.ui.transformer.SearchVertexLabelFontTransformer;
+import prerna.ui.transformer.SearchVertexPaintTransformer;
 import prerna.util.Constants;
 import prerna.util.DIHelper;
 import prerna.util.QuestionPlaySheetStore;
+import edu.uci.ics.jung.algorithms.layout.GraphElementAccessor;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.ModalLensGraphMouse;
+import edu.uci.ics.jung.visualization.picking.MultiPickedState;
 import edu.uci.ics.jung.visualization.picking.PickedState;
 
 
@@ -97,11 +103,22 @@ public class GraphNodeListener extends ModalLensGraphMouse implements IChakraLis
 		}
 
 		DBCMVertex [] vertices = new DBCMVertex[ps.getPicked().size()];
+		
+		//Need vertex to highlight when click in skeleton mode... Here we need to get the already selected vertices
+		//so that we can add to them
+		Hashtable vertHash = new Hashtable();
+		SearchVertexLabelFontTransformer vlft = null;
+		if(((GraphPlaySheet)ps3).searchPanel.btnHighlight.isSelected()) {
+			vlft = (SearchVertexLabelFontTransformer) viewer.getRenderContext().getVertexFontTransformer();
+			vertHash.putAll(vlft.getVertHash());
+		}
 		// right now we assume only one is selected
 		for(int vertIndex = 0;it.hasNext();vertIndex++)
 		{
 			DBCMVertex v = it.next();
 			vertices[vertIndex] = v;
+			//add selected vertices
+			vertHash.put(v.getProperty(Constants.URI), v.getProperty(Constants.URI));
 			
 			logger.info(" Name  >>> " + v.getProperty(Constants.VERTEX_NAME));
 			// this needs to invoke the property table model stuff
@@ -111,12 +128,35 @@ public class GraphNodeListener extends ModalLensGraphMouse implements IChakraLis
 			//table.repaint();
 			pm.fireTableDataChanged();
 			logger.debug("Add this in - Prop Table");
+			if(((GraphPlaySheet)ps3).searchPanel.btnHighlight.isSelected()) {
+				vlft.setVertHash(vertHash);
+				SearchVertexPaintTransformer ptx = (SearchVertexPaintTransformer)viewer.getRenderContext().getVertexFillPaintTransformer();
+				ptx.setVertHash(vertHash);
+				viewer.repaint();
+			}
 			wasSelected = true;
 		}
 
 		if(e.getButton() == MouseEvent.BUTTON3)
 		{
 			logger.debug("Button 3 is pressed ");
+			if(ps.getPicked().size()==0){
+				final Point2D p = e.getPoint();
+		        final Point2D ivp = p;
+
+		        GraphElementAccessor pickSupport = viewer.getPickSupport();
+		        if(pickSupport != null) {
+		            DBCMVertex v = (DBCMVertex) pickSupport.getVertex(viewer.getGraphLayout(), ivp.getX(), ivp.getY());
+		            if(v!=null){
+		            	PickedState state = new MultiPickedState();
+		            	System.out.println("Got vertex on right click");state.pick(v, true);
+		            	viewer.setPickedVertexState(state);
+		            	vertices = new DBCMVertex[1];
+		            	vertices[0] = v;
+		            }
+		        }
+			}
+			
 			GraphNodePopup popup = new GraphNodePopup(ps3, vertices, e.getComponent(), e.getX(), e.getY());
 			
 			popup.show(e.getComponent(), e.getX(), e.getY());

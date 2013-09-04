@@ -46,8 +46,7 @@ public class ExportNodeLoadSheetsListener implements IChakraListener {
 		Hashtable<String, Vector<String[]>> hash = new Hashtable<String, Vector<String[]>>();
 		NodeLoadingSheetWriter writer = new NodeLoadingSheetWriter();
 		String workingDir = System.getProperty("user.dir");
-		String folder = "/export/Nodes/";
-		Date date = new Date();
+		String folder = "\\export\\Nodes\\";
 		String writeFileName = "Nodes_LoadingSheet_" + DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(new Date()).replace(":", "") + ".xlsx";
 		String fileLoc = workingDir + folder + writeFileName;
 		log.info(fileLoc);
@@ -61,9 +60,8 @@ public class ExportNodeLoadSheetsListener implements IChakraListener {
 
 			query += "OPTIONAL{ {?p <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Relation/Contains> ;} {?s ?p ?prop ;} } }";
 
-			JList repoList = (JList)DIHelper.getInstance().getLocalProp(Constants.REPO_LIST);
-			Object[] repo = (Object[])repoList.getSelectedValues();
-			IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(repo[0]+"");
+			JComboBox exportDataSourceComboBox = (JComboBox) DIHelper.getInstance().getLocalProp(Constants.EXPORT_LOAD_SHEET_SOURCE_COMBOBOX);
+			IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(exportDataSourceComboBox.getSelectedItem().toString());
 
 			SesameJenaSelectWrapper wrapper = new SesameJenaSelectWrapper();
 			wrapper.setQuery(query);

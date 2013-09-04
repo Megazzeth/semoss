@@ -140,6 +140,7 @@ public class PlaySheetListener implements InternalFrameListener {
 			ps.dataLatencyPopUp.dispose();
 		}
 		//if the playsheet has a data latency play popup associated with it, close it
+		
 		logger.debug("Disabled the extend and append ");
 		logger.info("Complete ");
 	}

@@ -65,13 +65,34 @@ public class GraphNodePopup extends JPopupMenu {
 		mstListener.setPlaysheet(ps);
 		item = add("Show Minimum Spanning Tree");
 		item.addActionListener(mstListener);
+
+		JMenu highAdj = new JMenu("Highlight Adjacent");
+		item = add(highAdj);
+		item.setEnabled(true);
 		
 		AdjacentPopupMenuListener aListener = new AdjacentPopupMenuListener();
 		aListener.setPlaysheet(ps);
 		aListener.setDBCMVertex(pickedVertex);
-		item = add("Highlight Adjacent");
-		item.setEnabled(pickedVertex.length > 0);
-		item.addActionListener(aListener);
+		
+		JMenuItem highAdjBoth = new JMenuItem("Upstream and Downstream");
+		highAdjBoth.setName("Upstream and Downstream");//used by the listener
+		highAdjBoth.setEnabled(pickedVertex.length > 0);
+		highAdjBoth.addActionListener(aListener);
+		
+
+		JMenuItem highAdjDown = new JMenuItem("Downstream");
+		highAdjDown.setName("Downstream");//used by the listener
+		highAdjDown.setEnabled(pickedVertex.length > 0);
+		highAdjDown.addActionListener(aListener);
+
+		JMenuItem highAdjUp = new JMenuItem("Upstream");
+		highAdjUp.setName("Upstream");//used by the listener
+		highAdjUp.setEnabled(pickedVertex.length > 0);
+		highAdjUp.addActionListener(aListener);
+		
+		highAdj.add(highAdjBoth);
+		highAdj.add(highAdjDown);
+		highAdj.add(highAdjUp);
 
 		addSeparator();
 		
@@ -132,6 +153,8 @@ public class GraphNodePopup extends JPopupMenu {
 		item = add(popup6);
 		item.setEnabled(pickedVertex.length > 0);
 		
+
+		
 		fromNode = "";
 		if(this.pickedVertex.length > 0)
 			fromNode = Utility.getInstanceName(pickedVertex[0].getURI());
@@ -139,27 +162,34 @@ public class GraphNodePopup extends JPopupMenu {
 		item = add(popup13);
 		item.setEnabled(pickedVertex.length > 0);
 		
+		fromNode = "";
+		if(this.pickedVertex.length > 0)
+			fromNode = Utility.getInstanceName(pickedVertex[0].getURI());
+		TFInstanceRelationInstancePopup tfrip = new TFInstanceRelationInstancePopup("Traverse Instance Freely: " + fromNode, ps,this.pickedVertex);
+		item = add(tfrip);
+		item.setEnabled(pickedVertex.length > 0);
+		
 		JMenu algoPop = new JMenu("Perform Algorithms");
 		item = add(algoPop);
 		item.setEnabled(true);
 		
 		GraphNodeRankListener gp = new GraphNodeRankListener();
-		JMenuItem algoItemNodeRank = new JMenuItem("Perform NodeRank Algorithm");
+		JMenuItem algoItemNodeRank = new JMenuItem("NodeRank Algorithm");
 		algoItemNodeRank.addActionListener(gp);
 		algoPop.add(algoItemNodeRank);
 
 		DistanceDownstreamListener ddc = new DistanceDownstreamListener((GraphPlaySheet)ps, this.pickedVertex);
-		JMenuItem algoItemDistanceDownstream  = new JMenuItem("Perform Distance Downstream");
+		JMenuItem algoItemDistanceDownstream  = new JMenuItem("Distance Downstream");
 		algoItemDistanceDownstream.addActionListener(ddc);
 		algoPop.add(algoItemDistanceDownstream);
 
 		LoopIdentifierListener lil = new LoopIdentifierListener((GraphPlaySheet)ps, this.pickedVertex);
-		JMenuItem algoItemLoopIdentifier  = new JMenuItem("Perform Loop Identifier");
+		JMenuItem algoItemLoopIdentifier  = new JMenuItem("Loop Identifier");
 		algoItemLoopIdentifier.addActionListener(lil);
 		algoPop.add(algoItemLoopIdentifier);
 
 		IslandIdentifierListener iil = new IslandIdentifierListener((GraphPlaySheet)ps, this.pickedVertex);
-		JMenuItem algoItemIslandIdentifier  = new JMenuItem("Perform Island Identifier");
+		JMenuItem algoItemIslandIdentifier  = new JMenuItem("Island Identifier");
 		algoItemIslandIdentifier.addActionListener(iil);
 		algoPop.add(algoItemIslandIdentifier);
 
@@ -185,11 +215,6 @@ public class GraphNodePopup extends JPopupMenu {
 		uhvl.setPlaysheet(ps);
 		item.addActionListener(uhvl);
 
-		addSeparator();
-		JMenu chartPop = new JMenu("Chart It!!");
-		item = add(chartPop);
-        item.setEnabled(true);
-        
 		
 		//item.setEnabled(pickedVertex.length > 0);
 
@@ -222,20 +247,20 @@ public class GraphNodePopup extends JPopupMenu {
 		
 	}
 	
-	public boolean remoteDBCheck(Integer nodeLength)
+	public String dbCheck(Integer nodeLength)
 	{
-		boolean dbCheck = false;
+		String dbType = "local";
 		JList list = (JList)DIHelper.getInstance().getLocalProp(Constants.REPO_LIST);
 		Object repo = list.getSelectedValue();
 		IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(repo+"");
 		
 		if (engine instanceof RemoteSparqlEngine && nodeLength>0)
 		{
-			dbCheck = true;
+			dbType = "remote";
 		}
 		
 		
-		return dbCheck;
+		return dbType;
 	}
 	
 	public boolean checkICD()

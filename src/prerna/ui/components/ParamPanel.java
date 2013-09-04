@@ -6,8 +6,10 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -60,12 +62,15 @@ public class ParamPanel extends JPanel{
 		gridBagLayout.rowWeights = new double[]{0.0, 0.0};
 		this.setLayout(gridBagLayout);
 
+		ArrayList<ParamComboBox> fields = new ArrayList();
+		ArrayList<GridBagConstraints> gbcs1 = new ArrayList();
+		ArrayList<GridBagConstraints> gbcs2 = new ArrayList();
+		ArrayList<JLabel> labels = new ArrayList();
 		Enumeration keys = params.keys();
 		GridBagConstraints gbc_element = new GridBagConstraints();
 		int elementInt=0;
 		while(keys.hasMoreElements())
 		{
-
 			String key = (String)keys.nextElement();
 			JLabel label = new JLabel(key);
 			label.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -107,13 +112,16 @@ public class ParamPanel extends JPanel{
 			gbc_element.insets = new Insets(0, 5, 5, 5);
 			gbc_element.gridx = 0;
 			gbc_element.gridy = elementInt;
-			this.add(label, gbc_element);
+			labels.add(label);
+			gbcs1.add(gbc_element);
+			//this.add(label, gbc_element);
 
 
 			field.setPreferredSize(new Dimension(150, 25));
 			field.setMinimumSize(new Dimension(150, 25));
 			field.setMaximumSize(new Dimension(200, 32767));
 			field.setBackground(new Color(119, 136, 153)); //Dropdown background color
+			
 
 			gbc_element = new GridBagConstraints();
 			gbc_element.anchor = GridBagConstraints.NORTH;
@@ -121,9 +129,40 @@ public class ParamPanel extends JPanel{
 			gbc_element.insets = new Insets(0, 5, 5, 5);
 			gbc_element.gridx = 1;
 			gbc_element.gridy = elementInt;
-			this.add(field, gbc_element);
+			
+			//fields and gbc_element need to be added in sorted order
+			fields.add(field);
+			gbcs2.add(gbc_element);
+			//this.add(field, gbc_element);
 			elementInt++;
 
+		}
+		int index=0;
+		int begAlph=0;
+		while(fields.size()>1)
+		{
+			begAlph=0;
+			for(int i=1;i<fields.size();i++)
+			{
+				if(fields.get(begAlph).getParamName().compareTo(fields.get(i).getParamName())>0)
+					begAlph=i;
+			}
+			gbcs1.get(begAlph).gridy=index;
+			gbcs2.get(begAlph).gridy=index;
+			index++;
+			this.add(labels.get(begAlph),gbcs1.get(begAlph));
+			this.add(fields.get(begAlph),gbcs2.get(begAlph));
+			fields.remove(begAlph);
+			gbcs1.remove(begAlph);
+			labels.remove(begAlph);
+			gbcs2.remove(begAlph);
+		}
+		if(!gbcs1.isEmpty())
+		{
+		gbcs1.get(0).gridy=index;
+		gbcs2.get(0).gridy=index;
+		this.add(labels.get(0),gbcs1.get(0));
+		this.add(fields.get(0),gbcs2.get(0));
 		}
 		/*
 		GridLayout layout = new GridLayout(0,2);

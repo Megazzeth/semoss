@@ -5,6 +5,7 @@ import javax.swing.JList;
 import org.apache.log4j.Logger;
 
 import prerna.rdf.engine.api.IEngine;
+import prerna.rdf.engine.impl.BigDataEngine;
 import prerna.rdf.engine.impl.SesameJenaUpdateWrapper;
 import prerna.util.Constants;
 import prerna.util.DIHelper;
@@ -35,20 +36,32 @@ public class UpdateProcessor {
 				IEngine selectedEngine = (IEngine)DIHelper.getInstance().getLocalProp(repos[repoIndex]+"");
 				logger.info("Selecting repository " + repos[repoIndex]);
 				
+				if(selectedEngine instanceof BigDataEngine) {
+					BigDataEngine selectedEngineBigData = (BigDataEngine) selectedEngine;
+					selectedEngineBigData.infer();
+				}
+				
 				//create the update wrapper, set the variables, and let it run
 				SesameJenaUpdateWrapper wrapper = new SesameJenaUpdateWrapper();
 				wrapper.setEngine(selectedEngine);
 				wrapper.setQuery(query);
 				wrapper.execute();
+				selectedEngine.commit();
 				
 			}
 		}
 		else {
+			if(engine instanceof BigDataEngine) {
+				BigDataEngine selectedEngineBigData = (BigDataEngine) engine;
+				selectedEngineBigData.infer();
+			}
+			
 			//create the update wrapper, set the variables, and let it run
 			SesameJenaUpdateWrapper wrapper = new SesameJenaUpdateWrapper();
 			wrapper.setEngine(engine);
 			wrapper.setQuery(query);
 			wrapper.execute();
+			engine.commit();
 		}
 		
 	}

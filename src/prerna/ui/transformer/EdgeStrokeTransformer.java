@@ -24,6 +24,10 @@ public class EdgeStrokeTransformer implements Transformer <DBCMEdge, Stroke> {
 		this.edges = edges;
 	}
 	
+	public Hashtable getEdges(){
+		return edges;
+	}
+	
 
 	@Override
 	public Stroke transform(DBCMEdge edge)

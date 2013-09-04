@@ -28,7 +28,7 @@ public class EdgeArrowStrokeTransformer implements Transformer <DBCMEdge, Stroke
 	public Stroke transform(DBCMEdge edge)
 	{
 		
-		float selectedFontFloat =3.0f;
+		float selectedFontFloat =2.5f;
 		float unselectedFontFloat =0.1f;
 		
 		float standardFontFloat = 0.3f;

@@ -63,8 +63,13 @@ public class OWLRefreshListener implements IChakraListener {
 		ps.removeExistingConcepts(createTriples2Remove(data.pred2bRemoved, "<http://health.mil/ontologies/dbcm/Relation>", "<http://www.w3.org/2000/01/rdf-schema#subPropertyOf>"));
 		
 		logger.warn("Adding Predicates " + data.pred2bAdded);
-		ps.addNewConcepts(data.pred2bAdded, "http://health.mil/ontologies/dbcm/Relation", RDFS.subPropertyOf+"");
+		String listOfChilds = ps.addNewConcepts(data.pred2bAdded, "http://health.mil/ontologies/dbcm/Relation", RDFS.subPropertyOf+"");
 		
+		logger.warn("List of childs " + listOfChilds);
+		
+		// do the property magic next
+		//if(listOfChilds != null)
+		//	ps.convertPropToConcept(listOfChilds);
 		// finish the properties
 		// this is interesting because the properties has to be contains relation
 		logger.warn("Removing Properties " + data.prop2bRemoved);
@@ -73,7 +78,8 @@ public class OWLRefreshListener implements IChakraListener {
 		logger.warn("Adding Properties " + data.prop2bAdded);
 		ps.addNewConcepts(data.prop2bAdded, "http://health.mil/ontologies/dbcm/Relation/Contains", RDF.TYPE+"");
 		
-		
+		// this function will later be tied to save button
+		//saveIt();
 		
 		// Step 2 - Converting a Relation to a Property
 		// to Convert a relationship to a property
@@ -143,6 +149,18 @@ public class OWLRefreshListener implements IChakraListener {
 		}
 		return subVector;
 	}	
+	
+	// temporary placeholder
+	// once complete, this will be written into the prop file back
+	public void saveIt()
+	{
+		GraphPlaySheet ps = (GraphPlaySheet)QuestionPlaySheetStore.getInstance().getActiveSheet();
+
+		String engineName = ps.engine.getEngineName();
+		// get the core properties
+		ps.exportDB();
+		ps.engine.saveConfiguration();
+	}
 	
 	@Override
 	public void setView(JComponent view) {

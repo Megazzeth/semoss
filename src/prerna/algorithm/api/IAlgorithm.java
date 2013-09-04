@@ -1,5 +1,6 @@
 package prerna.algorithm.api;
 
+import lpsolve.LpSolveException;
 import prerna.ui.components.api.IPlaySheet;
 
 // primary interface that can be utilized to apply algorithms

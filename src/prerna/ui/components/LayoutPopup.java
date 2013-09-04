@@ -13,7 +13,7 @@ public class LayoutPopup extends JMenu{
 	// need a way to cache this for later
 	// sets the visualization viewer
 	IPlaySheet ps = null;
-	String [] layoutNames = {Constants.FR, Constants.KK, Constants.SPRING, Constants.ISO, Constants.CIRCLE_LAYOUT, Constants.TREE_LAYOUT, Constants.RADIAL_TREE_LAYOUT};
+	String [] layoutNames = {Constants.FR, Constants.KK, Constants.SPRING, Constants.ISO, Constants.CIRCLE_LAYOUT, Constants.TREE_LAYOUT, Constants.RADIAL_TREE_LAYOUT, Constants.BALLOON_LAYOUT};
 	
 	Logger logger = Logger.getLogger(getClass());
 	public LayoutPopup(String name, IPlaySheet ps)

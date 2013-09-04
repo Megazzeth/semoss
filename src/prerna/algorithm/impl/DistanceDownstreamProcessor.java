@@ -22,20 +22,26 @@ import edu.uci.ics.jung.graph.DelegateForest;
 
 public class DistanceDownstreamProcessor implements IAlgorithm {
 
-	DelegateForest forest = null;
-	ArrayList<DBCMVertex> selectedVerts = new ArrayList<DBCMVertex>();
+	protected DelegateForest forest = null;
+	protected ArrayList<DBCMVertex> selectedVerts = new ArrayList<DBCMVertex>();
 	GridFilterData gfd = new GridFilterData();
-	GraphPlaySheet playSheet;
+	protected GraphPlaySheet playSheet;
 	public Hashtable masterHash = new Hashtable();
 	public String distanceString = "Distance";
-	String pathString = "vertexPath";
-	String edgePathString = "edgePathString";
+	protected String pathString = "vertexPath";
+	protected String edgePathString = "edgePathString";
 	public String leafString = "leafString";
 	String selectedNodes="";
+	protected ArrayList<DBCMVertex> nextNodes = new ArrayList<DBCMVertex>();
 	
 	
 	@Override
 	public void execute() {
+		ArrayList<DBCMVertex> currentNodes = setRoots();
+		performDownstreamProcessing(currentNodes);
+	}
+	
+	protected ArrayList<DBCMVertex> setRoots(){
 		//start with a hashtable of all of the roots, move downward without ever touching the same node twice
 		//as we go, put in masterHash with vertHash.  vertHash has distance and path with the key being the actual vertex
 		Collection<DBCMVertex> forestRoots = new ArrayList();
@@ -55,8 +61,6 @@ public class DistanceDownstreamProcessor implements IAlgorithm {
 		
 		//use current nodes as the next set of nodes that I will have to traverse downward from.  Starts with root nodes
 		ArrayList<DBCMVertex> currentNodes = new ArrayList<DBCMVertex>();
-		//use next nodes as the future set of nodes to traverse down from.
-		ArrayList<DBCMVertex> nextNodes = new ArrayList<DBCMVertex>();
 		
 		//start with the root nodes in the masterHash
 		for(DBCMVertex vert: forestRoots) {
@@ -70,15 +74,20 @@ public class DistanceDownstreamProcessor implements IAlgorithm {
 			masterHash.put(vert, vertHash);
 			currentNodes.add(vert);
 		}
-		
+		return currentNodes;
+	}
+	
+	protected void performDownstreamProcessing(ArrayList<DBCMVertex> currentNodes){
+		//use next nodes as the future set of nodes to traverse down from.
 		int nodeIndex = 0;
 		int levelIndex = 1;
 		while(!nextNodes.isEmpty() || levelIndex == 1){
 			nextNodes.clear();
+
 			while (!currentNodes.isEmpty()){
 				nodeIndex = 0;
 				DBCMVertex vert = currentNodes.remove(nodeIndex);
-				
+
 				Hashtable vertHash = (Hashtable) masterHash.get(vert);
 				ArrayList<DBCMVertex> parentPath = (ArrayList<DBCMVertex>) vertHash.get(pathString);
 				ArrayList<DBCMEdge> parentEdgePath = (ArrayList<DBCMEdge>) vertHash.get(edgePathString);
@@ -93,8 +102,6 @@ public class DistanceDownstreamProcessor implements IAlgorithm {
 			
 			levelIndex++;
 		}
-		
-		
 	}
 	
 	public ArrayList<DBCMVertex> traverseDownward(DBCMVertex vert, int levelIndex, ArrayList<DBCMVertex> parentPath, ArrayList<DBCMEdge> parentEdgePath){

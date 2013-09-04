@@ -145,145 +145,123 @@ public class ImportDataListener implements IChakraListener {
 		}
 	}
 	
-	public void executeDeleteAndLoad(String repo, String fileName, String customBaseURI, String mapName) {
+	public void executeDeleteAndLoad(String repo, String fileNames, String customBaseURI, String mapName) {
 		POIReader reader = new POIReader();
+		String[] files = fileNames.split(";");
 
-		try {
-			//Delete all nodes/relationships of specified types
-			XSSFWorkbook book = new XSSFWorkbook(new FileInputStream(fileName.replace(";", "")));
-			XSSFSheet lSheet = book.getSheet("Loader");
-			int lastRow = lSheet.getLastRowNum();
+		for(String file : files) {
+			try {
+				//Delete all nodes/relationships of specified types
+				XSSFWorkbook book = new XSSFWorkbook(new FileInputStream(file));
+				XSSFSheet lSheet = book.getSheet("Loader");
+				int lastRow = lSheet.getLastRowNum();
 
-			ArrayList<String> sheets = new ArrayList<String>();
-			ArrayList<String> nodes = new ArrayList<String>();
-			ArrayList<String[]> relationships = new ArrayList<String[]>();
-			for (int rIndex = 1; rIndex <= lastRow; rIndex++) {
-				XSSFRow sheetNameRow = lSheet.getRow(rIndex);
-				XSSFCell cell = sheetNameRow.getCell(0);
-				XSSFSheet sheet = book.getSheet(cell.getStringCellValue());
+				ArrayList<String> sheets = new ArrayList<String>();
+				ArrayList<String> nodes = new ArrayList<String>();
+				ArrayList<String[]> relationships = new ArrayList<String[]>();
+				for (int rIndex = 1; rIndex <= lastRow; rIndex++) {
+					XSSFRow sheetNameRow = lSheet.getRow(rIndex);
+					XSSFCell cell = sheetNameRow.getCell(0);
+					XSSFSheet sheet = book.getSheet(cell.getStringCellValue());
 
-				XSSFRow row = sheet.getRow(0);
-				String sheetType = "";
-				if(row.getCell(0) != null) {
-					sheetType = row.getCell(0).getStringCellValue();
-				}
-				if("Node".equalsIgnoreCase(sheetType)) {
-					if(row.getCell(1) != null) {
-						nodes.add(row.getCell(1).getStringCellValue());
+					XSSFRow row = sheet.getRow(0);
+					String sheetType = "";
+					if(row.getCell(0) != null) {
+						sheetType = row.getCell(0).getStringCellValue();
 					}
-				}
-				if("Relation".equalsIgnoreCase(sheetType)) {
-					String subject = "";
-					String object = "";
-					String relationship = "";
-					if(row.getCell(1) != null && row.getCell(2) != null) {
-						subject = row.getCell(1).getStringCellValue();
-						object = row.getCell(2).getStringCellValue();
-
-						row = sheet.getRow(1);
-						if(row.getCell(0) != null) {
-							relationship = row.getCell(0).getStringCellValue();
+					if("Node".equalsIgnoreCase(sheetType)) {
+						if(row.getCell(1) != null) {
+							nodes.add(row.getCell(1).getStringCellValue());
 						}
+					}
+					if("Relation".equalsIgnoreCase(sheetType)) {
+						String subject = "";
+						String object = "";
+						String relationship = "";
+						if(row.getCell(1) != null && row.getCell(2) != null) {
+							subject = row.getCell(1).getStringCellValue();
+							object = row.getCell(2).getStringCellValue();
 
-						relationships.add(new String[]{subject, relationship, object});
+							row = sheet.getRow(1);
+							if(row.getCell(0) != null) {
+								relationship = row.getCell(0).getStringCellValue();
+							}
+
+							relationships.add(new String[]{subject, relationship, object});
+						}
 					}
 				}
-			}
-			JFrame playPane = (JFrame) DIHelper.getInstance().getLocalProp(Constants.MAIN_FRAME);
-			Object[] buttons = {"Cancel", "Continue"};
-			String replacedString = "";
-			for(String node: nodes) replacedString = replacedString + node + "\n";
-			for(String[] rel : relationships) replacedString = replacedString + rel[0] +" " + rel[1] + " " + rel[2]+"\n";
-			int response = JOptionPane.showOptionDialog(playPane, "This move cannot be undone.\nPlease make sure the excel file is formatted correctly and make a back up jnl file before continuing.\n\nThe following data will be replaced:\n\n" +
-					replacedString +
-					"\n" +
-					"Would you still like to continue?", 
-					"Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, buttons, buttons[1]);
-			if (response == 1)
-			{
-				String deleteQuery = "";
-				UpdateProcessor proc = new UpdateProcessor();
-
-				int numberNodes = nodes.size();
-				if(numberNodes > 0) {
-					deleteQuery = "DELETE {?s ?p ?prop. ?s ?x ?y} WHERE { {";
-					deleteQuery += "SELECT ?s ?p ?prop ?x ?y WHERE { {?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Concept/";
-					deleteQuery += nodes.get(0);
-					deleteQuery += "> ;} {?s ?x ?y} MINUS {?x <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://health.mil/ontologies/dbcm/Relation> ;} ";
-					deleteQuery += "OPTIONAL{ {?p <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Relation/Contains> ;} {?s ?p ?prop ;} } } } ";
-
-					if(numberNodes == 1) {
-						for(int i = 1; i < numberNodes; i++) {
-							deleteQuery += "UNION { ";
+				JFrame playPane = (JFrame) DIHelper.getInstance().getLocalProp(Constants.MAIN_FRAME);
+				Object[] buttons = {"Cancel", "Continue"};
+				String replacedString = "";
+				for(String node: nodes) replacedString = replacedString + node + "\n";
+				for(String[] rel : relationships) replacedString = replacedString + rel[0] +" " + rel[1] + " " + rel[2]+"\n";
+				int response = JOptionPane.showOptionDialog(playPane, "This move cannot be undone.\nPlease make sure the excel file is formatted correctly and make a back up jnl file before continuing.\n\nThe following data will be replaced:\n\n" +
+						replacedString +
+						"\n" +
+						"Would you still like to continue?", 
+						"Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, null, buttons, buttons[1]);
+				if (response == 1)
+				{
+					String deleteQuery = "";
+					UpdateProcessor proc = new UpdateProcessor();
+					
+					int numberNodes = nodes.size();
+					if(numberNodes > 0) {
+						for(String node : nodes) {
+							deleteQuery = "DELETE {?s ?p ?prop. ?s ?x ?y} WHERE { {";
 							deleteQuery += "SELECT ?s ?p ?prop ?x ?y WHERE { {?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Concept/";
-							deleteQuery += nodes.get(i);
-							deleteQuery += "> ;} {?s ?x ?y}";
+							deleteQuery += node;
+							deleteQuery += "> ;} {?s ?x ?y} MINUS {?x <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://health.mil/ontologies/dbcm/Relation> ;} ";
 							deleteQuery += "OPTIONAL{ {?p <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Relation/Contains> ;} {?s ?p ?prop ;} } } } ";
+							deleteQuery += "}";
+							
+							proc.setQuery(deleteQuery);
+							proc.processQuery();
 						}
 					}
-					deleteQuery += "}";
 
-					proc.setQuery(deleteQuery);
-					proc.processQuery();
-				}
-
-				int numberRelationships = relationships.size();
-				if(numberRelationships > 0) {
-					deleteQuery = "DELETE {?in ?relationship ?out. ?relationship ?contains ?prop} WHERE { {";
-					deleteQuery += "SELECT ?in ?relationship ?out ?contains ?prop WHERE { "+ 
-							"{?in <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Concept/";
-					deleteQuery += relationships.get(0)[0];
-					deleteQuery += "> ;}";
-
-					deleteQuery += "{?out <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Concept/";
-					deleteQuery += relationships.get(0)[2];
-					deleteQuery += "> ;}";
-
-					deleteQuery += "{?relationship <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://health.mil/ontologies/dbcm/Relation/";
-					deleteQuery += relationships.get(0)[1];
-					deleteQuery += "> ;} {?in ?relationship ?out ;} ";
-					deleteQuery += "OPTIONAL {{?relationship ?contains ?prop ;} } } }";
-
-					if(numberRelationships > 1) {
-						for(int i = 1; i < numberRelationships; i++) {
-							deleteQuery += "UNION { ";
+					int numberRelationships = relationships.size();
+					if(numberRelationships > 0) {
+						for(String[] rel : relationships) {
+							deleteQuery = "DELETE {?in ?relationship ?out. ?relationship ?contains ?prop} WHERE { {";
 							deleteQuery += "SELECT ?in ?relationship ?out ?contains ?prop WHERE { "+ 
 									"{?in <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Concept/";
-							deleteQuery += relationships.get(i)[0];
-							deleteQuery += "> ;}";
+							deleteQuery += rel[0];
+							deleteQuery += "> ;} ";
 
 							deleteQuery += "{?out <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://health.mil/ontologies/dbcm/Concept/";
-							deleteQuery += relationships.get(i)[2];
-							deleteQuery += "> ;}";
+							deleteQuery += rel[2];
+							deleteQuery += "> ;} ";
 
 							deleteQuery += "{?relationship <http://www.w3.org/2000/01/rdf-schema#subPropertyOf> <http://health.mil/ontologies/dbcm/Relation/";
-							deleteQuery += relationships.get(i)[1];
+							deleteQuery += rel[1];
 							deleteQuery += "> ;} {?in ?relationship ?out ;} ";
-							deleteQuery += "OPTIONAL { {?relationship ?contains ?prop ;} } } }";
+							deleteQuery += "OPTIONAL { {?relationship ?contains ?prop ;} } } } ";
+							deleteQuery += "}";
+							
+							proc.setQuery(deleteQuery);
+							proc.processQuery();
 						}
-
 					}
-					deleteQuery += "} ";
 
-					proc.setQuery(deleteQuery);
-					proc.processQuery();
+					//run the reader
+					reader.importFileWithConnection(repo, file, customBaseURI, mapName);
+
+					//run the ontology augmentor
+
+					OntologyFileWriter ontologyWriter = new OntologyFileWriter();
+					ontologyWriter.runAugment(mapName, reader.importReader.createdURIsHash, 
+							reader.importReader.baseObjRelations, reader.importReader.createdRelURIsHash, reader.importReader.baseRelRelations, 
+							reader.importReader.dbPropURI, reader.importReader.dbPredicateURI);
+
+					Utility.showMessage("Your database has been successfully updated!");
 				}
-
-				//run the reader
-				reader.importFileWithConnection(repo, fileName, customBaseURI, mapName);
-
-				//run the ontology augmentor
-
-				OntologyFileWriter ontologyWriter = new OntologyFileWriter();
-				ontologyWriter.runAugment(mapName, reader.importReader.createdURIsHash, 
-						reader.importReader.baseObjRelations, reader.importReader.createdRelURIsHash, reader.importReader.baseRelRelations, 
-						reader.importReader.dbPropURI, reader.importReader.dbPredicateURI);
-
-				Utility.showMessage("Your database has been successfully updated!");
+			} catch (Exception ex)
+			{
+				ex.printStackTrace();
+				Utility.showError("Load has failed. Please make sure the loads sheets in the excel file are \nformatted correctly, and objects match the map file.");
 			}
-		} catch (Exception ex)
-		{
-			Utility.showError("Load has failed. Please make sure the loads sheets in the excel file are \nformatted correctly, and objects match the map file.");
 		}
 	}
 

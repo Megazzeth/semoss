@@ -2,20 +2,7 @@ package prerna.ui.main;
 
 import java.awt.Color;
 import java.awt.Insets;
-import java.io.File;
-import java.io.FileInputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.util.Properties;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
-import javax.swing.JList;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -24,10 +11,11 @@ import javax.swing.plaf.ColorUIResource;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import prerna.rdf.engine.api.IEngine;
 import prerna.ui.components.PlayPane;
+import prerna.util.AbstractFileWatcher;
 import prerna.util.Constants;
 import prerna.util.DIHelper;
-import prerna.util.Utility;
 
 import com.ibm.icu.util.StringTokenizer;
 
@@ -44,11 +32,15 @@ public class Starter {
 	 * 7. Create the UI
 	*/
 	
+	Object monitor = new Object();
+	
 	public static void main(String [] args) throws Exception
 	{
+		Starter starter = new Starter();
 		String workingDir = System.getProperty("user.dir");
 		String propFile = workingDir + "/RDF_Map.prop";
 		Logger logger = Logger.getLogger(prerna.ui.main.Starter.class);
+		//Object monitor = new Object(); // stupid object for being a monitor
 		
 		//logger.setLevel(Level.INFO);
 		PropertyConfigurator.configure(workingDir + "/log4j.prop");
@@ -108,92 +100,77 @@ public class Starter {
 		// get the engine name
 		//String engines = DIHelper.getInstance().getProperty(Constants.ENGINES);
 		String engines = "";
+		
 		DIHelper.getInstance().setLocalProperty(Constants.ENGINES, engines);
 		
-		StringTokenizer tokens = new StringTokenizer(engines,";");
-		
-		File dir = new File("./db");
-		String [] fileNames = dir.list(new prerna.util.PropFilter());
-		for(int fileIdx = 0;fileIdx < fileNames.length;fileIdx++)
-		{
-			try{
-				String fileName = "./db/" + fileNames[fileIdx];
-				Properties prop = new Properties();
-				prop.load(new FileInputStream(fileName));
-
-				Utility.loadEngine(fileName, prop);				
-			}catch(Exception ex)
-			{
-				logger.fatal("Engine Failed " + "./db/" + fileNames[fileIdx]);
-			}
-		}		
 		PlayPane frame = new PlayPane();
-		//PlayPane pane = new PlayPane();
-		
-		frame.start();
 		frame.setVisible(true);
+		SplashScreen ss = new SplashScreen();
+		frame.start();
 		
-		WatchService watcher = FileSystems.getDefault().newWatchService();
-		
-		Path dir2Watch = Paths.get("./db");
-		
-		try
+		// need to parameterize this sucker and let it roll
+		// ok Load the ENGINE watcher first
+		String watcherStr = DIHelper.getInstance().getProperty(Constants.ENGINE_WATCHER);
+		System.out.println(watcherStr);
+		StringTokenizer watchers = new StringTokenizer(watcherStr, ";");
+		while(watchers.hasMoreElements())
 		{
-			WatchKey key = dir2Watch.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
-			
-			while(true)
+			String watcher = watchers.nextToken();
+			String watcherClass = DIHelper.getInstance().getProperty(watcher);
+			String folder = DIHelper.getInstance().getProperty(watcher + "_DIR");
+			String ext = DIHelper.getInstance().getProperty(watcher + "_EXT");
+			AbstractFileWatcher watcherInstance = (AbstractFileWatcher)Class.forName(watcherClass).getConstructor(null).newInstance(null);
+			watcherInstance.setMonitor(starter.monitor);
+			watcherInstance.setFolderToWatch(folder);
+			watcherInstance.setExtension(ext);
+			synchronized(starter.monitor)
 			{
-				//WatchKey key2 = watcher.poll(1, TimeUnit.MINUTES);
-				WatchKey key2 = watcher.take();
-				
-				for(WatchEvent<?> event: key2.pollEvents())
+				watcherInstance.loadFirst();
+				Thread thread = new Thread(watcherInstance);
+				thread.start();
+			}
+		}
+		
+		// get this into a synchronized block
+		// so this guy will wait
+		// I do this so that I can get reference to the engine when I need it
+		synchronized(starter.monitor)
+		{
+			watcherStr = DIHelper.getInstance().getProperty(Constants.WATCHERS);
+			if(watcherStr != null )
+			{
+				watchers = new StringTokenizer(watcherStr, ";");
+				while(watchers.hasMoreElements())
 				{
-					WatchEvent.Kind kind = event.kind();
-					if(kind == StandardWatchEventKinds.ENTRY_CREATE)
+					String watcher = watchers.nextToken();
+					String watcherClass = DIHelper.getInstance().getProperty(watcher);
+					String folder = DIHelper.getInstance().getProperty(watcher + "_DIR");
+					String ext = DIHelper.getInstance().getProperty(watcher + "_EXT");
+					String engineName = DIHelper.getInstance().getProperty(watcher+"_ENGINE");
+					try
 					{
-						String newFile = event.context() + "";
-						if(newFile.endsWith("smss"))
+						AbstractFileWatcher watcherInstance = (AbstractFileWatcher)Class.forName(watcherClass).getConstructor(null).newInstance(null);
+						// engines should be loaded by now
+						// hopefully :D
+						if(engineName != null && DIHelper.getInstance().getLocalProp(engineName) != null)
 						{
-							Thread.sleep(2000);	
-							try
-							{
-								loadNewDB(newFile);
-							}catch(Exception ex)
-							{
-								ex.printStackTrace();
-							}
-						}else
-							logger.info("Ignoring File " + newFile);
+							IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(engineName);
+							watcherInstance.setEngine(engine);
+						}
+						watcherInstance.setMonitor(starter.monitor);
+						watcherInstance.setFolderToWatch(folder);
+						watcherInstance.setExtension(ext);
+						watcherInstance.loadFirst();
+						Thread thread = new Thread(watcherInstance);
+						thread.start();
+					}catch(Exception ex)
+					{
+						// ok dont do anything the file was not there
 					}
 				}
-				key2.reset();
-
 			}
-			
-			
-		}catch(Exception ex)
-		{
-			ex.printStackTrace();
-			// do nothing
 		}
-
-	}
-	
-	public static void loadNewDB(String newFile) throws Exception
-	{
-		Properties prop = new Properties();
-		prop.load(new FileInputStream("./db/" +  newFile));
-
-		Utility.loadEngine("./db/" +  newFile, prop);
-		String engineName = prop.getProperty(Constants.ENGINE);
-		JList list = (JList)DIHelper.getInstance().getLocalProp(Constants.REPO_LIST);
-		DefaultListModel listModel = (DefaultListModel) list.getModel();
-		listModel.addElement(engineName);
-		//list.setModel(listModel);
-		list.setSelectedIndex(0);
-		list.repaint();
-		JFrame frame2 = (JFrame) DIHelper.getInstance().getLocalProp(
-				Constants.MAIN_FRAME);
-		frame2.repaint();
+		
+		ss.setVisible(false);
 	}
 }

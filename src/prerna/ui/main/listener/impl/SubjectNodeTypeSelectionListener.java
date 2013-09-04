@@ -62,9 +62,8 @@ public class SubjectNodeTypeSelectionListener extends AbstractListener {
 		query += " {?s <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://health.mil/ontologies/dbcm/Concept> ;}" 
 				+ "{?out <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?s ;} {?in ?p ?out ;} }";
 		
-		JList repoList = (JList)DIHelper.getInstance().getLocalProp(Constants.REPO_LIST);
-		Object[] repo = (Object[])repoList.getSelectedValues();
-		IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(repo[0]+"");
+		JComboBox exportDataSourceComboBox = (JComboBox) DIHelper.getInstance().getLocalProp(Constants.EXPORT_LOAD_SHEET_SOURCE_COMBOBOX);
+		IEngine engine = (IEngine)DIHelper.getInstance().getLocalProp(exportDataSourceComboBox.getSelectedItem().toString());
 		
 		SesameJenaSelectWrapper wrapper = new SesameJenaSelectWrapper();
 		wrapper.setQuery(query);
