@@ -102,9 +102,9 @@ public class TFRelationPopup extends JMenu implements MouseListener{
 			for(int vertIndex = 0;vertIndex < vertVector.size();vertIndex++)
 			{
 				if(vertIndex == 0)
-					fileName = "\"" + Utility.getInstanceName(vertVector.elementAt(vertIndex).getURI()) + "\"";
+					fileName = "(<" + vertVector.elementAt(vertIndex).getURI() + ">)";
 				else
-					fileName = fileName + "," + "\"" + Utility.getInstanceName(vertVector.elementAt(vertIndex).getURI()) + "\"";
+					fileName = fileName + "(<" + vertVector.elementAt(vertIndex).getURI() + ">)";
 			}
 			hash.put("FILTER_VALUES", fileName);
 			// get the repository and execute the query
